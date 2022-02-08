@@ -1,6 +1,5 @@
 Python xLights REST API Scripts
 Author: Bill Jenkins
-eMail: wjenkins364@gmail.com
 Date: 02/07/2022
 Vesion: 1.0
 
@@ -16,7 +15,7 @@ Requirements:
             File --> Preferences --> Output --> xFade/XSchedule --> Port A (49913) or Port B (49914)
     Python v3.10.2+
         download and install from python.org
-        install requests
+        install requests package
             pip install requests
 
 ##################################
