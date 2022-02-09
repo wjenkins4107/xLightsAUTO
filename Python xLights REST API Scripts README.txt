@@ -53,7 +53,7 @@ Requirements:
 # Script: packageSequences.py    #
 ##################################
     Description:
-            Perfom xLights REST API packageSequence on all sequences in a specfied show folder and sub folder
+            Perfom xLights REST API packageSequence on all sequences in a specfied show folder and sub folders
 
     Arguments:
         -s    --xlightsshowfolder    ; xLights Show Folder          ;                                                ; Required = True
@@ -79,7 +79,7 @@ Requirements:
 # Script: uploadSequences.py     #
 ##################################
     Description:
-            Perfom xLights REST API uploadSequence on all sequences in a specfied show folder and sub folders using player csv file for parms
+            Perfom xLights REST API uploadSequence on all sequences in a specfied show folder and sub folders using upload sequence csv file for parms
 
     Arguments:
         -u    --uploadcsvfile        ; Upload Sequence CSV File     ;                                                ; Required = True
