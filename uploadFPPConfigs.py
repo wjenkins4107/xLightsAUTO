@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
-# Name: uploadSequences.py
-# Purpose: Upload a sequence in a show folders and sub folders to players defined in  a csv formatted input file 
+# Name: uploadFPPConfigs,py
+# Purpose: Upload an FPP Config to FPP instance using a csv formatted input file 
 # Author: Bill Jenkins
 # Version: v1.0
 # Date: 02/07/2022
 
 ###########################
-# Imports				  #
+# Imports                 #
 ###########################
 
 import argparse
@@ -40,7 +40,7 @@ def doRequestsGet(request, timeout, verbose):
 		result = "##### Request Connection Error: " + format(str(e))
 
 	# HTTP Timeout?
-	except requests.exceptions.Timeout as e:	
+	except requests.exceptions.Timeout as e:
 		ret_code = -3
 		status_code = ""
 		result = "##### Request Timeout Error: " + format(str(e))
@@ -196,7 +196,7 @@ def main():
 	xlightsprogramfolder = args.xlightsprogramfolder
 	verbose = args.verbose
 	if (verbose):
-		print ("Upload CSV File = %s" % uploadcsvfile)
+		print ("Upload FPP Config CSV File = %s" % uploadcsvfile)
 		print ("xLights Show Folder = %s" % xlightsshowfolder)
 		print ("xLights IP Address = %s" % xlightsipaddress)
 		print ("xLights Port = %s" % xlightsport)
@@ -204,18 +204,18 @@ def main():
 	
 	# verify upload file exists
 	if not os.path.isfile(uploadcsvfile):
-		print("Error: Upload file not found" % uploadcsvfile)
+		print("Error: Upload FPP Config CSV file not found %s" % uploadcsvfile)
 		sys.exit(-1)
 		
 	# verify xlights show folder exists
 	if not os.path.isdir(xlightsshowfolder):
-		print("Error: Show Folder %s not found" % showfolder)
+		print("Error: xLights Show Folder not found %s" % xlightsshowfolder)
 		sys.exit(-1)
 
 	# verify xlights program file exists
 	xlightsprogramfile = xlightsprogramfolder + "\\xlights.exe"
 	if not os.path.isfile(xlightsprogramfile):
-		print("Error: xLights program not found" % xlightsprogramfile)
+		print("Error: xLights Program File not found %s" % xlightsprogramfile)
 		sys.exit(-1)
 
 	# Base URL

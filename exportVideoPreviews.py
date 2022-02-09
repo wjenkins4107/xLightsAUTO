@@ -7,7 +7,7 @@
 # Date: 02/07/2022
 
 ###############################
-# Imports					  #
+# Imports                     #
 ###############################
 
 import argparse
@@ -19,7 +19,7 @@ import re
 import requests
 
 ###############################
-# doRequestsGet				  #
+# doRequestsGet               #
 ###############################
 
 def doRequestsGet(request, timeout, verbose):
@@ -43,7 +43,7 @@ def doRequestsGet(request, timeout, verbose):
 		result = "##### Request Connection Error: " + format(str(e))
 
 	# HTTP Timeout?
-	except requests.exceptions.Timeout as e:	
+	except requests.exceptions.Timeout as e:
 		ret_code = -3
 		status_code = ""
 		result = "##### Request Timeout Error: " + format(str(e))
@@ -57,7 +57,7 @@ def doRequestsGet(request, timeout, verbose):
 	return(ret_code, status_code, result)
 
 ###############################
-# startxLights				  #
+# startxLights                #
 ###############################
 
 def startxLights(baseURL, xlightsprogramfile, verbose):
@@ -105,7 +105,7 @@ def startxLights(baseURL, xlightsprogramfile, verbose):
 	return(ret_code, status_code, result)
 
 ###############################
-# exportVideoPreview		  #
+# exportVideoPreview          #
 ###############################
 
 def exportVideoPreview(baseURL, sequence, fullsequence, xlightsshowfolder, outputfolder, verbose):
@@ -121,8 +121,8 @@ def exportVideoPreview(baseURL, sequence, fullsequence, xlightsshowfolder, outpu
 		print("Unable to connect to xLights REST API %s" % baseURL)
 		print ("ret_code = ", ret_code)
 		print ("result = ", result) 
-		sys.exit(ret_code)		
-	if (verbose):		
+		sys.exit(ret_code)
+	if (verbose):
 		print ("status_code = ", status_code)
 		print ("result = ", result)
 		
@@ -141,14 +141,14 @@ def exportVideoPreview(baseURL, sequence, fullsequence, xlightsshowfolder, outpu
 	# Export Video Preview
 	request = baseURL + "exportVideoPreview?filename=" + outputfile 
 	print ("##### Export Video Preview %s" % sequence)
-	print ("request = ", request)	
+	print ("request = ", request)
 	(ret_code, status_code, result) = doRequestsGet(request, 900, verbose)
 	# Request Error?
 	if (ret_code < 0):
 		print("Unable to connect to xLights REST API %s" % baseURL)
 		print ("ret_code = ", ret_code)
 		print ("result = ", result) 
-		sys.exit(ret_code)		
+		sys.exit(ret_code)
 	# 
 	print ("status_code = ", status_code)
 	print ("result = ", result)
@@ -157,14 +157,14 @@ def exportVideoPreview(baseURL, sequence, fullsequence, xlightsshowfolder, outpu
 	request = baseURL + "closeSequence"
 	if (verbose):
 		print ("##### Close Sequence %s" % sequence)
-		print ("request = ", request)	
+		print ("request = ", request)
 	(ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
 	# Request Error?
 	if (ret_code < 0):
 		print("Unable to connect to xLights REST API %s" % baseURL)		
 		print ("ret_code = ", ret_code)
 		print ("result = ", result) 
-		sys.exit(ret_code)		
+		sys.exit(ret_code)
 	if (verbose):
 		print ("status_code = ", status_code)
 		print ("result = ", result)
@@ -172,7 +172,7 @@ def exportVideoPreview(baseURL, sequence, fullsequence, xlightsshowfolder, outpu
 	return()
 
 ###############################
-# main						  #
+# mai                         #
 ###############################
 
 def main():
@@ -213,7 +213,7 @@ def main():
 	if (verbose):
 		print ("xLights Show Folder = %s" % xlightsshowfolder)
 		print ("xLights IP Address = %s" % xlightsipaddress)
-		print ("xLights xlightsport = %s" % xlightsport)
+		print ("xLights Port = %s" % xlightsport)
 		print ("xLights Program Folder = %s" % xlightsprogramfolder)
 		print ("Output Folder = %s" % outputfolder)
 	
@@ -224,13 +224,13 @@ def main():
 
 	# Verify Show Folder
 	if not os.path.isdir(xlightsshowfolder):
-		print("Error: Show Folder %s not found" % xlightsshowfolder)
+		print("Error: xLights Show Folder not found %s" % xlightsshowfolder)
 		sys.exit(-5)
 
 	# verify xlights program file exists
 	xlightsprogramfile = xlightsprogramfolder + "\\xlights.exe"
 	if not os.path.isfile(xlightsprogramfile):
-		print("Error: xLights program not found" % xlightsprogramfile)
+		print("Error: xLights Program File not found %s" % xlightsprogramfile)
 		sys.exit(-1)
 
 	# Start xLights?
@@ -246,7 +246,7 @@ def main():
 	request = baseURL + "changeShowFolder?folder=" + re.sub(" ", r"%20", xlightsshowfolder)
 	if (verbose):
 		print ("##### Change Show Folder")
-		print ("request = ", request)	
+		print ("request = ", request)
 	(ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
 	if (ret_code < 0):	
 		print("Unable to connect to xLights REST API %s" % baseURL)
@@ -268,7 +268,7 @@ def main():
 				# xLights Sequence File not in the Backup folder?
 				if (found < 0):
 				  sequence = file
-				  # Export Video Preview				  
+				  # Export Video Preview
 				  exportVideoPreview(baseURL, sequence, fullsequence, xlightsshowfolder, outputfolder, verbose)
 	print ("##### exportVideoPreview Ended")
 

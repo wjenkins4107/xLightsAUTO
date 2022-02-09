@@ -7,7 +7,7 @@
 # Date: 02/07/2022
 
 ###########################
-# Imports				  #
+# Imports                 #
 ###########################
 
 import argparse
@@ -40,7 +40,7 @@ def doRequestsGet(request, timeout, verbose):
 		result = "##### Request Connection Error: " + format(str(e))
 
 	# HTTP Timeout?
-	except requests.exceptions.Timeout as e:	
+	except requests.exceptions.Timeout as e:
 		ret_code = -3
 		status_code = ""
 		result = "##### Request Timeout Error: " + format(str(e))
@@ -54,7 +54,7 @@ def doRequestsGet(request, timeout, verbose):
 	return(ret_code, status_code, result)
 
 ###############################
-# startxLights				  #
+# startxLights                #
 ###############################
 
 def startxLights(baseURL, xlightsprogramfile, verbose):
@@ -105,7 +105,7 @@ def startxLights(baseURL, xlightsprogramfile, verbose):
 import urllib.parse
 
 ###############################
-# createParamsStr			  #
+# createParamsStr             #
 ###############################
 
 def createParamsStr(params_dict, verbose): 
@@ -127,7 +127,7 @@ def createParamsStr(params_dict, verbose):
 		elif(params_ctr < params_len):
 			params_str = params_str + params_key + "=" + str(params_value) + "&"
 		else:
-			params_str = params_str + params_key + "=" + str(params_value)				 	   
+			params_str = params_str + params_key + "=" + str(params_value)
 	params_str = re.sub(" ", "%20", params_str)
 	if (verbose):
 		print ("params_str = %s" % params_str)
@@ -150,7 +150,7 @@ def uploadSequence(baseURL, uploadip, uploadmedia, uploadformat, uploadseq, verb
 	   print("Unable to connect to xLights REST API %s" % baseURL)
 	   print ("ret_code = ", ret_code)
 	   print ("result = ", result) 
-	   sys.exit("*** Error in Request to Rest API")	   
+	   sys.exit("*** Error in Request to Rest API")
 	# 
 	print ("status_code = ", status_code)
 	print ("result = ", result)
@@ -194,7 +194,7 @@ def main():
 	xlightsprogramfolder = args.xlightsprogramfolder
 	verbose = args.verbose
 	if (verbose):
-		print ("Upload CSV File = %s" % uploadcsvfile)
+		print ("Upload Sequence CSV File = %s" % uploadcsvfile)
 		print ("xLights Show Folder = %s" % xlightsshowfolder)
 		print ("xLights IP Address = %s" % xlightsipaddress)
 		print ("xLights Port = %s" % xlightsport)
@@ -202,18 +202,18 @@ def main():
 	
 	# verify upload file exists
 	if not os.path.isfile(uploadcsvfile):
-		print("Error: Upload file not found" % uploadcsvfile)
+		print("Error: Upload Sequence CSV file not found %s" % uploadcsvfile)
 		sys.exit(-1)
 		
 	# verify xlights show folder exists
 	if not os.path.isdir(xlightsshowfolder):
-		print("Error: Show Folder %s not found" % showfolder)
+		print("Error: xLights Show Folder not found %s" % xlightsshowfolder)
 		sys.exit(-1)
 
 	# verify xlights program file exists
 	xlightsprogramfile = xlightsprogramfolder + "\\xlights.exe"
 	if not os.path.isfile(xlightsprogramfile):
-		print("Error: xLights program not found" % xlightsprogramfile)
+		print("Error: xLights Program File not found %s" % xlightsprogramfile)
 		sys.exit(-1)
 
 	# Base URL

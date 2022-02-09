@@ -7,7 +7,7 @@
 # Date: 02/07/2022
 
 ###############################
-# Imports					  #
+# Imports                     #
 ###############################
 
 import argparse
@@ -21,7 +21,7 @@ import json
 from shutil import copy
 
 ###############################
-# doRequestsGet				  #
+# doRequestsGet               #
 ###############################
 
 def doRequestsGet(request, timeout, verbose):
@@ -45,7 +45,7 @@ def doRequestsGet(request, timeout, verbose):
 		result = "##### Request Connection Error: " + format(str(e))
 
 	# HTTP Timeout?
-	except requests.exceptions.Timeout as e:	
+	except requests.exceptions.Timeout as e:
 		ret_code = -3
 		status_code = ""
 		result = "##### Request Timeout Error: " + format(str(e))
@@ -107,7 +107,7 @@ def startxLights(baseURL, xlightsprogramfile, verbose):
 	return(ret_code, status_code, result)
 
 ###############################
-# checkSequence				  #
+# checkSequence               #
 ###############################
 
 def checkSequence(baseURL, sequence, fullsequence, xlightsshowfolder, outputfolder, verbose):
@@ -180,7 +180,7 @@ def checkSequence(baseURL, sequence, fullsequence, xlightsshowfolder, outputfold
 		
  
 ###############################
-# Main						  #
+# Main                        #
 ###############################	
 
 def main():
@@ -208,7 +208,7 @@ def main():
 	cli_parser.add_argument('-v', '--verbose', help = 'Verbose Logging', action='store_true',
 		required = False)
 
-	print ("##### checkSequence Started")	
+	print ("##### checkSequence Started")
 	
 	### Get Arguments
 
@@ -235,13 +235,13 @@ def main():
 
 	# Verify Show Folder
 	if not os.path.isdir(xlightsshowfolder):
-		print("Error: Show Folder %s not found" % xlightsshowfolder)
+		print("Error: xLights Show Folder not found %s" % xlightsshowfolder)
 		sys.exit(-1)
 
 	# verify xlights program file exists
 	xlightsprogramfile = xlightsprogramfolder + "\\xlights.exe"
 	if not os.path.isfile(xlightsprogramfile):
-		print("Error: xLights program not found" % xlightsprogramfile)
+		print("Error: xLights Program File not found %s" % xlightsprogramfile)
 		sys.exit(-1)
 
 	# Start xLights?
@@ -257,9 +257,9 @@ def main():
 	request = baseURL + "changeShowFolder?folder=" + re.sub(" ", r"%20", xlightsshowfolder)
 	if (verbose):
 		print ("##### Change Show Folder")
-		print ("request = ", request)	
+		print ("request = ", request)
 	(ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
-	if (ret_code < 0):	
+	if (ret_code < 0):
 		print("Unable to connect to xLights REST API %s" % baseURL)
 		print ("ret_code = ", ret_code)
 		print ("result = ", result)
@@ -278,7 +278,7 @@ def main():
 				# xLights Sequence File not in the Backup folder?
 				if (found < 0):
 					sequence = file 
-					# Check Sequence				  
+					# Check Sequence
 					checkSequence(baseURL, sequence, fullsequence, xlightsshowfolder, outputfolder, verbose)
 
 	print ("##### checkSequence Ended")	

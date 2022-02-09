@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-# Name: exportModels.py
-# Purpose: export models in a show folder to an excel file
+# Name: renderAll.py
+# Purpose: render all xlLights sequences in a show folder and sub folders
 # Author: Bill Jenkins
 # Version: v1.0
 # Date: 02/05/2022
@@ -21,7 +21,6 @@ import requests
 ###############################
 # doRequestsGet               #
 ###############################
-
 
 def doRequestsGet(request, timeout, verbose):
 
@@ -106,34 +105,73 @@ def startxLights(baseURL, xlightsprogramfile, verbose):
 	return(ret_code, status_code, result)
 
 ###############################
-# exportModelsCSV             #
+# renderAll                   #
 ###############################
 
-def exportModelsCSV(baseURL, exportfilename, xlightsshowfolder, outputfolder, verbose):
- 
-	# Output Folder
-	if (outputfolder == "DEFAULT"):
-		outputfolder = xlightsshowfolder + "\\exportModelsCSV"
-	# Output Folder does not exist?
-	if not os.path.isdir(outputfolder):
-		# Make Output Folder
-		os.mkdir(outputfolder)
-	# Output File
-	outputfile = outputfolder + "\\" + exportfilename + ".xlsx" 
-	request = baseURL + "exportModelsCSV?filename=" + re.sub(" ", r"%20", outputfile) 
-	print ("##### Export ModelsCSV for Show Folder %s " % xlightsshowfolder)
-	print ("request = ", request)	
+def renderAll(baseURL, sequence, fullsequence, verbose):
+
+	# Open sequence
+	request = baseURL + "openSequence/" + re.sub(" ", r"%20", fullsequence)
+	if (verbose):
+		print ("##### Open Sequence %s" % sequence)
+		print ("request = ", request)
+	(ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
+	# Request Error?
+	if (ret_code < 0):
+		print("Unable to connect to xLights REST API %s" % baseURL)
+		print ("ret_code = ", ret_code)
+		print ("result = ", result) 
+		sys.exit(ret_code)
+	if (verbose):
+		print ("status_code = ", status_code)
+		print ("result = ", result)
+	
+	# Render ALL sequence
+	request = baseURL + "renderAll"
+	print ("##### Render ALL sequence %s" % sequence)
+	print ("request = ", request)
 	(ret_code, status_code, result) = doRequestsGet(request, 900, verbose)
 	# Request Error?
 	if (ret_code < 0):
 		print("Unable to connect to xLights REST API %s" % baseURL)
 		print ("ret_code = ", ret_code)
 		print ("result = ", result) 
-		sys.exit(ret_code)		
-	# 
+		sys.exit(ret_code)
 	print ("status_code = ", status_code)
 	print ("result = ", result)
-
+			
+	# Save sequence
+	request = baseURL + "saveSequence"
+	if (verbose):
+		print ("##### Save sequence %s" % sequence)
+		print ("request = ", request)
+	(ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
+	# Request Error?
+	if (ret_code < 0):
+		print("Unable to connect to xLights REST API %s" % baseURL)
+		print ("ret_code = ", ret_code)
+		print ("result = ", result) 
+		sys.exit(ret_code)
+	if (verbose):
+		print ("status_code = ", status_code)
+		print ("result = ", result)
+	
+	# Close sequence
+	request = baseURL + "closeSequence"
+	if (verbose):
+		print ("##### Close sequence %s" % sequence)
+		print ("request = ", request)
+	(ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
+	# Request Error?
+	if (ret_code < 0):
+		print("Unable to connect to xLights REST API %s" % baseURL)
+		print ("ret_code = ", ret_code)
+		print ("result = ", result) 
+		sys.exit(ret_code)
+	if (verbose):
+		print ("status_code = ", status_code)
+		print ("result = ", result)
+		
 	return()
 
 ###############################
@@ -142,19 +180,13 @@ def exportModelsCSV(baseURL, exportfilename, xlightsshowfolder, outputfolder, ve
 
 def main():
 
-	cli_parser = argparse.ArgumentParser(prog = 'exportModelsCSV',
-		description = '''%(prog)s is a tool to perform a export models to an excel file,''')
+	cli_parser = argparse.ArgumentParser(prog = 'renderAll',
+		description = '''%(prog)s is a tool to render all xLights sequences in a show folder,''')
 	
 	### Define Arguments	
 
-	cli_parser.add_argument('-f', '--exportfilename', help = 'Excel Export Models File Name',
-		required = True)
-
 	cli_parser.add_argument('-s', '--xlightsshowfolder', help = 'xLights Show Folder',
 		required = True)
-
-	cli_parser.add_argument('-o', '--outputfolder', help = 'Excel File Output Folder', default = "DEFAULT",
-		required = False)
 
 	cli_parser.add_argument('-i', '--xlightsipaddress', help = 'xLights REST API IP Address', default = "127.0.0.1",
 		required = False)
@@ -168,23 +200,19 @@ def main():
 	cli_parser.add_argument('-v', '--verbose', help = 'Verbose Logging', action='store_true',
 		required = False)
 
-	print ("##### exportModelsCSV Started")
-
+	print ("##### renderAll Started")
+	
 	### Get Arguments
 	args = cli_parser.parse_args()
 	
-	exportfilename = args.exportfilename
 	xlightsshowfolder = args.xlightsshowfolder
-	outputfolder = args.outputfolder
 	xlightsipaddress = args.xlightsipaddress
 	xlightsport = args.xlightsport
 	xlightsprogramfolder = args.xlightsprogramfolder
 	verbose = args.verbose
 	if (verbose):
-		print ("Excel Export Models File Name = %s" % exportfilename)
-		print ("XLights Show Folder = %s" % xlightsshowfolder)
-		print ("Output Folder = %s" % outputfolder)
-		print ("XLights IP Address = %s" % xlightsipaddress)
+		print ("xLights Show Folder = %s" % xlightsshowfolder)
+		print ("xLights IP Address = %s" % xlightsipaddress)
 		print ("xLights Port = %s" % xlightsport)
 		print ("xLights Program Folder = %s" % xlightsprogramfolder)
 	
@@ -195,7 +223,7 @@ def main():
 
 	# Verify Show Folder
 	if not os.path.isdir(xlightsshowfolder):
-		print("Error: Show Folder not found %s" % xlightsshowfolder)
+		print("Error: xLights Show Folder not found %s" % xlightsshowfolder)
 		sys.exit(-5)
 
 	# verify xlights program file exists
@@ -204,20 +232,20 @@ def main():
 		print("Error: xLights Program File not found %s" % xlightsprogramfile)
 		sys.exit(-1)
 
-	# Start xLights?
+	# Start xLights
 	(ret_code, status_code, result) = startxLights(baseURL, xlightsprogramfile, verbose)
 	# xLights Start Error?
 	if (ret_code < 0):
 		print("Unable to connect to xLights REST API %s" % baseURL)
 		print ("ret_code = ", ret_code)
 		print ("result = ", result)
-		sys.exit(ret_code)
-			
+		sys.exit(ret_code)	
+	
 	# Change Show Folder
 	request = baseURL + "changeShowFolder?folder=" + re.sub(" ", r"%20", xlightsshowfolder)
 	if (verbose):
 		print ("##### Change Show Folder")
-		print ("request = ", request)	
+		print ("request = ", request)
 	(ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
 	if (ret_code < 0):	
 		print("Unable to connect to xLights REST API %s" % baseURL)
@@ -228,9 +256,19 @@ def main():
 		print ("status_code = ", status_code)
 		print ("result = ", result)
 
-	exportModelsCSV(baseURL, exportfilename, xlightsshowfolder, outputfolder, verbose)
-
-	print ("##### exportModelsCSV Ended")
-
+	### OS Walk Show Folder Recursively
+	for root, dir, files in os.walk(xlightsshowfolder):
+		for file in files:
+			# xLights Sequence File?
+			if (file.endswith(".xsq")):
+				fullsequence = os.path.join(root, file)
+				found = fullsequence.find("Backup\\")
+				# xLights Sequence File not in the Backup folder?
+				if (found < 0):
+				  sequence = file
+				  # Render All Sequence
+				  renderAll(baseURL, sequence, fullsequence, verbose)
+				  
+	print ("##### Render All Ended")
 if __name__ == "__main__":
 	main()
