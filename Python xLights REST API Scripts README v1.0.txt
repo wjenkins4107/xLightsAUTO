@@ -23,7 +23,7 @@ Requirements:
 ##################################
 
     Description:
-            Perfom xLights REST API check sequence on all sequences in a specfied show folder and sub folders and copy output to a specified folder
+            Perform xLights REST API check sequence on all sequences in a show folder and sub folders, optionally copy the output to an output folder and optionally open the output file in notepad  
 
     Arguments:
         -s    --xlightsshowfolder    ; xLights Show Folder          ;                                                ; Required = True
@@ -40,7 +40,7 @@ Requirements:
 # Script: exportVideoPreviews.py #
 ##################################
     Description:
-            Perfom xLights REST API exportVideoPreview on all sequences in a specfied show folder and sub folders to a specified folder
+            Perform xLights REST API exportVideoPreview on all sequences in a show folder and sub folders to an output folder
 
     Arguments:
         -s    --xlightsshowfolder    ; xLights Show Folder          ;                                                ; Required = True
@@ -54,7 +54,7 @@ Requirements:
 # Script: remderAll.py           #
 ##################################
     Description:
-            Perfom xLights REST API renderAll on all sequences in a specfied show folder and sub folders
+            Perform xLights REST API renderAll on all sequences in a show folder and sub folders
 
     Arguments:
         -s    --xlightsshowfolder    ; xLights Show Folder          ;                                                ; Required = True
@@ -67,7 +67,7 @@ Requirements:
 # Script: uploadSequences.py     #
 ##################################
     Description:
-            Perfom xLights REST API uploadSequence on all sequences in a specfied show folder and sub folders using upload sequence csv file for parms
+             Perform xLights REST API uploadSequence on all sequences in a show folder and sub folders using parameters from an upload sequence csv file
 
     Arguments:
         -u    --uploadcsvfile        ; Upload Sequence CSV File     ;                                                ; Required = True
@@ -101,7 +101,7 @@ Requirements:
 # Script: uploadFPPConfigs.py    #
 ##################################
     Description:
-            Perfom xLights REST API uploadFPPConfigs using FPP Config csv file for parms
+            Perform xLights REST API uploadFPPConfig on all sequences in a show folder and sub folders using parameters from am upload FPP Config csv file
 
     Arguments:
         -u    --uploadcsvfile        ; Upload FPP Config CSV File   ;                                                ; Required = True
