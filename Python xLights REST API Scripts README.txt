@@ -30,6 +30,7 @@ Requirements:
         -i    --xlightsipaddress     ; xLights REST API IP Address  ; default = "127.0.0.1"                          ; Required = False
         -p    --xlightsport          ; xLights REST API Port        ; default = "49913" ; choices = "49913", "49914" ; Required = False
         -x    --xlightsprogramfolder ; xLights Program Folder       ; default = "c:\program files\xlights"           ; Required = False
+        -n    --notepadopen          ; Notepad Open                 ; action = "store_true"                          ; Required = False
         -v    --verbose              ; Verbose logging              ; action = "store_true"                          ; Required = False
 
     Example(s):

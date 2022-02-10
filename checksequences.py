@@ -110,7 +110,7 @@ def startxLights(baseURL, xlightsprogramfile, verbose):
 # checkSequence               #
 ###############################
 
-def checkSequence(baseURL, sequence, fullsequence, xlightsshowfolder, outputfolder, verbose):
+def checkSequence(baseURL, sequence, fullsequence, xlightsshowfolder, outputfolder, notepadopen, verbose):
 
 	# Check Sequence
 	request = baseURL + "checkSequence?seq=" + re.sub(" ", r"%20", fullsequence)
@@ -133,34 +133,30 @@ def checkSequence(baseURL, sequence, fullsequence, xlightsshowfolder, outputfold
 	d1 = json.loads(result)
 	outputfile = d1["output"]
 	
-	# Copy Output File to Check Sequence Output Folder
-	if (outputfolder == "DEFAULT"):
-		checksequencefolder = xlightsshowfolder + "\\" + "checkSequence"
+	# No Output Folder Defined? 
+	if (outputfolder == "NONE"):
+		newoutputfile = outputfile
 	else:
-		checksequencefolder = outputfolder
-	
-	# Folder does not exist?
-	if not os.path.isdir(checksequencefolder):
-		os.mkdir(checksequencefolder)
-		
-	# New File Name
-	newfile = checksequencefolder + "\\" + re.sub(".xsq", ".txt", sequence) 
-	
-	# Copy Output File	
-	copy(outputfile, newfile)
+		# Copy Check Sequence Output File to Check Sequence Output Folder using Sequence name
+		checksequencefolder = xlightsshowfolder + "\\" + outputfolder
+		# Folder does not exist?
+		if not os.path.isdir(checksequencefolder):
+			os.mkdir(checksequencefolder)
+		# Copy Check Sequence Output File Name
+		newoutputfile = checksequencefolder + "\\" + re.sub(".xsq", ".txt", sequence) 
+		# Copy File
+		copy(outputfile, newoutputfile)
 
- 
-	
 	# Check Sequence Output File Searches
 	p1 = re.compile(r"^Show folder:")
 	p2 = re.compile(r"^Sequence:")
 	p3 = re.compile(r"^Errors:")
 	
 	print ("##### Check Sequence Summary")
-	print ("Check Sequence Output File: %s" % newfile)	
+	print ("Check Sequence Output File: %s" % newoutputfile)	
 	
 	# Open Check Sequence Output File 
-	FINPUT = open(newfile, "r")
+	FINPUT = open(newoutputfile, "r")
 	for line in FINPUT:
 		s1 = p1.search(line)
 		# Strip Trailing Newline
@@ -177,8 +173,16 @@ def checkSequence(baseURL, sequence, fullsequence, xlightsshowfolder, outputfold
 					print (line)
 	# Close INPUT File
 	FINPUT.close()
-		
- 
+
+	# Open Check Sequence Output in Notepad?
+	if (notepadopen):
+		cmd = ("notepad.exe " + newoutputfile)
+		try:
+			cp = subprocess.Popen(cmd)
+		except:
+			sys.exit("*** Error in starting notepad %s" % sys.exc_info()[0])
+	return()
+
 ###############################
 # Main                        #
 ###############################	
@@ -202,7 +206,10 @@ def main():
 	cli_parser.add_argument('-x', '--xlightsprogramfolder', help = 'xLights Program Folder', default = "c:\\program files\\xlights",
 		required = False)
 		
-	cli_parser.add_argument('-o', '--outputfolder', help = 'Output Folder', default = "DEFAULT",
+	cli_parser.add_argument('-o', '--outputfolder', help = 'Output Folder', default = "NONE",
+		required = False)
+
+	cli_parser.add_argument('-n', '--notepadopen' , help = 'Notepad Open', action='store_true',
 		required = False)
 
 	cli_parser.add_argument('-v', '--verbose', help = 'Verbose Logging', action='store_true',
@@ -219,6 +226,7 @@ def main():
 	xlightsport = args.xlightsport
 	xlightsprogramfolder = args.xlightsprogramfolder
 	outputfolder = args.outputfolder
+	notepadopen = args.notepadopen
 	verbose = args.verbose
 	if (verbose):
 		print ("Xlights Show Folder = %s" % xlightsshowfolder)
@@ -226,6 +234,7 @@ def main():
 		print ("Xlights Port = %s" % xlightsport)
 		print ("xLights Program Folder = %s" % xlightsprogramfolder)
 		print ("Output Folder = %s" % outputfolder)
+		print ("Notepad Open = %s" % notepadopen)
 
 	
 	# Base URL
@@ -279,7 +288,7 @@ def main():
 				if (found < 0):
 					sequence = file 
 					# Check Sequence
-					checkSequence(baseURL, sequence, fullsequence, xlightsshowfolder, outputfolder, verbose)
+					checkSequence(baseURL, sequence, fullsequence, xlightsshowfolder, outputfolder, notepadopen, verbose)
 
 	print ("##### checkSequence Ended")	
 				  
