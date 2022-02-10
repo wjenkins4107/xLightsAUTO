@@ -101,7 +101,7 @@ Requirements:
 # Script: uploadFPPConfigs.py    #
 ##################################
     Description:
-            Perform xLights REST API uploadFPPConfig on all sequences in a show folder and sub folders using parameters from am upload FPP Config csv file
+            Perform xLights REST API uploadFPPConfig using parameters from am upload FPP Config csv file
 
     Arguments:
         -u    --uploadcsvfile        ; Upload FPP Config CSV File   ;                                                ; Required = True
