@@ -1,2 +1,2 @@
 # xLightsAUTO
-xLights REST API Python Automation Scripts
+xLights REST API Automation Scripts
