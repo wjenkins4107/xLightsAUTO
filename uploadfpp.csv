@@ -1,0 +1,7 @@
+# 
+# xLights FPP Upload Config CSV File
+# <ip>,<udp>,<models>,<map>
+#
+10.222.50.7,none,true,false
+10.222.50.8,none,false,false
+10.222.50.9,none,false,false

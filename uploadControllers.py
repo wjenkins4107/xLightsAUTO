@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-# Name: uploadFPPConfigs,py
-# Purpose: Upload an FPP Config to FPP instance using a csv formatted input file 
+# Name: uploadControllers.py
+# Purpose: Upload a controller configuration from the conroller IPs in xLights 
 # Author: Bill Jenkins
 # Version: v1.0
 # Date: 02/07/2022
@@ -55,7 +55,7 @@ def doRequestsGet(request, timeout, verbose):
 	return(ret_code, status_code, result)
 
 ###############################
-# startxLights				  #
+# startxLights                #
 ###############################
 
 def startxLights(baseURL, xlightsprogramfile, verbose):
@@ -75,6 +75,7 @@ def startxLights(baseURL, xlightsprogramfile, verbose):
 			case 0:
 				startloop = False
 				if (verbose):
+					print ("ret_code = ", ret_code)
 					print ("status_code = ", status_code)
 					print ("result = ", result)
 			# REST API Connection Error?
@@ -105,7 +106,7 @@ def startxLights(baseURL, xlightsprogramfile, verbose):
 import urllib.parse
 
 ###############################
-# createParamsStr			  #
+# createParamsStr             #
 ###############################
 
 def createParamsStr(params_dict, verbose): 
@@ -115,9 +116,12 @@ def createParamsStr(params_dict, verbose):
 
 	params_str = ""
 	params_ctr = 0
-	params_len = len(params_dict) 
+	params_len = len(params_dict)
 
 	for params_key, params_value in params_dict.items():
+		if (verbose):
+			print ("params_key %s=" % params_key)
+			print ("params_value %s=" % params_value)
 		params_ctr += 1
 		if (params_ctr == 1):
 			if params_ctr == params_len:
@@ -134,26 +138,21 @@ def createParamsStr(params_dict, verbose):
 	
 	return(params_str)
 
-###############################
-# uploadFPPConfig			  #
-###############################
+def uploadController(baseURL, uploadip, verbose):
 
-def uploadFPPConfig(baseURL, fppip, fppudp, fppmodels, fppmap, verbose):
-
-	
-	params_dict =  {"ip": fppip, "udp": fppudp, "models": fppmodels, "map": fppmap}
-	fppparams = createParamsStr(params_dict, verbose)
-	request = baseURL + "uploadFPPConfig/" + fppparams  
-	print ("Upload FPP Config to FPP IP:%s udp:%s models:%s map:%s" % (fppip, fppudp, fppmodels, fppmap))
+	params_dict =  {"ip": str(uploadip)}
+	uploadparams = createParamsStr(params_dict, verbose)
+	request = baseURL + "uploadController/" + uploadparams  
+	print ("Upload configuration to controller:%s" % (uploadip)) 
 	if (verbose):
-	   print ("request = ", request)
+		print ("request = ", request)	
 	(ret_code, status_code, result) = doRequestsGet(request, 900, verbose)
 	# Request Error?
 	if (ret_code < 0):
-	   print("Unable to connect to xLights REST API %s" % baseURL)
-	   print ("ret_code = ", ret_code)
-	   print ("result = ", result) 
-	   sys.exit("*** Error in Request to Rest API")	   
+		print("Unable to connect to xLights REST API %s" % baseURL)
+		print ("ret_code = ", ret_code)
+		print ("result = ", result) 
+		sys.exit("*** Error in Request to Rest API")
 	# 
 	print ("status_code = ", status_code)
 	print ("result = ", result)
@@ -162,15 +161,12 @@ def uploadFPPConfig(baseURL, fppip, fppudp, fppmodels, fppmap, verbose):
 
 def main():
 
-	print ("#" *5 + " uploadFPPConfigs Begin")
+	print ("#" *5 + " uploadControllers Begin")
 
-	cli_parser = argparse.ArgumentParser(prog = 'uploadSequences',
-		description = '''%(prog)s is a tool to upload an fpp config with parms defined in a csv formatted input file ,''')
+	cli_parser = argparse.ArgumentParser(prog = 'uploadController',
+		description = '''%(prog)s is a tool to upload a controller configuration from the conroller IPs in xLights,''')
    
 	### Define Arguments	
-
-	cli_parser.add_argument('-u', '--uploadcsvfile', help = 'Upload CSV File',
-		required = True)
 
 	cli_parser.add_argument('-s', '--xlightsshowfolder', help = 'xLights Show Folder',
 		required = True)		
@@ -190,24 +186,17 @@ def main():
 	### Get Arguments
 	args = cli_parser.parse_args()
 	
-	uploadcsvfile = os.path.abspath(args.uploadcsvfile)
 	xlightsshowfolder = os.path.abspath(args.xlightsshowfolder)
 	xlightsipaddress = args.xlightsipaddress
 	xlightsport = args.xlightsport
 	xlightsprogramfolder = os.path.abspath(args.xlightsprogramfolder)
 	verbose = args.verbose
 	if (verbose):
-		print ("Upload FPP Config CSV File = %s" % uploadcsvfile)
 		print ("xLights Show Folder = %s" % xlightsshowfolder)
 		print ("xLights IP Address = %s" % xlightsipaddress)
 		print ("xLights Port = %s" % xlightsport)
 		print ("xLights Program Folder = %s" % xlightsprogramfolder)
-	
-	# verify upload file exists
-	if not os.path.isfile(uploadcsvfile):
-		print("Error: Upload FPP Config CSV file not found %s" % uploadcsvfile)
-		sys.exit(-1)
-		
+
 	# verify xlights show folder exists
 	if not os.path.isdir(xlightsshowfolder):
 		print("Error: xLights Show Folder not found %s" % xlightsshowfolder)
@@ -231,8 +220,8 @@ def main():
 		print("Unable to connect to xLights REST API %s" % baseURL)
 		print ("ret_code = ", ret_code)
 		print ("result = ", result)
-		sys.exit("*** Error in Request to REST API")
-
+		sys.exit(-1)
+		
 	# Change Show Folder
 	request = baseURL + "changeShowFolder?folder=" + re.sub(" ", r"%20", xlightsshowfolder)
 	if (verbose):
@@ -243,74 +232,34 @@ def main():
 		print("Unable to connect to xLights REST API %s" % baseURL)
 		print ("ret_code = ", ret_code)
 		print ("result = ", result)
-		sys.exit(ret_code)	
+		sys.exit(-1)
 	if (verbose):
 		print ("status_code = ", status_code)
 		print ("result = ", result)
 
 	# Get Controller IPs 
-	request = baseURL + "getControllerIPs" 
+	request = baseURL + "getControllerIPs"
+	result = []
 	if (verbose):
 		print ("##### Get Controller IP Address")
-		print ("request = ", request)	
+		print ("request = ", request)
 	(ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
-	if (ret_code < 0):	
+	if (ret_code < 0):
 		print("Unable to connect to xLights REST API %s" % baseURL)
 		print ("ret_code = ", ret_code)
 		print ("result = ", result)
-		sys.exit(ret_code)	
+		sys.exit(-1)
 	if (verbose):
 		print ("status_code = ", status_code)
 		print ("result = ", result)
-
 	controllerIPs = ast.literal_eval(result)
+# Upload controller configurations
+	for i in range(len(controllerIPs)):
+		uploadip = controllerIPs[i]
+		# Upload Configuration
+		uploadController(baseURL, uploadip, verbose) 
 
-	# Compile Searches
-	p1 = re.compile(r"^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$")
-
-	# Load fpp upload config parms into list
-	fppparms_list = []
-	with open(uploadcsvfile) as csvDataFile:
-		csvReader = csv.reader(csvDataFile)
-		for row in csvReader:
-			if (verbose):
-			   print ("FPP parms %s" % row)
-			rowstr = str(row)
-			if (rowstr[2] != "#"):
-				# Valid Number of Parms?
-				if (len(row) == 4):
-					fppip = row[0]
-					s1 = p1.search(fppip)
-					if (not s1):
-						sys.exit("*** ERROR Invalid IPv4 Address %s" % uploadip)
-					if fppip not in controllerIPs:
-						sys.exit("*** ERROR Controller IP %s not defined in Xlights" % uploadip)
-					fppudp = row[1]
-					if fppudp not in ["none", "all", "proxy"]:
-						print ("*** UDP parm invalid on %s changed to default of \"none\"" % uploadip)
-						fppudp = "none"
-					fppmodels = row[2]
-					if fppmodels not in ["true", "false"]:
-						print ("*** Models parm invalid on %s changed to default of \"false\"" % uploadip)
-						fppmodels = "false"
-					fppmap = row[3]
-					if fppmap not in ["true", "false"]:
-						print ("*** Map parm invalid on %s changed to default of \"false\"" % uploadip)
-						fppmap = "false"
-					fppparms_list.append([fppip, fppudp, fppmodels, fppmap])
-				else:
-					print ("*** Invalid number of upload parms %s" % row)
-	
-	# Get Upload Sequence Parms
-	for i in range(len(fppparms_list)):
-		fppip = fppparms_list[i][0]
-		fppudp = fppparms_list[i][1]
-		fppmodels = fppparms_list[i][2]
-		fppmap = fppparms_list[i][3]
-		# Upload FPP Config
-		uploadFPPConfig(baseURL, fppip, fppudp, fppmodels, fppmap, verbose) 
-
-	print ("#" *5 + " uploadFPPConfigs End")
+	print ("#" *5 + " uploadControllers End")
 
 if __name__ == "__main__":
 	main()

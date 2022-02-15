@@ -131,6 +131,7 @@ def exportVideoPreview(baseURL, sequence, fullsequence, xlightsshowfolder, outpu
 		outputfolder = xlightsshowfolder + "\\exportVideoPreview"
 
 	# Output Folder does not exist?
+	outputfolder = os.path.abspath(outputfolder)
 	if not os.path.isdir(outputfolder):
 		# Make Output Folder
 		os.mkdir(outputfolder)
@@ -172,10 +173,12 @@ def exportVideoPreview(baseURL, sequence, fullsequence, xlightsshowfolder, outpu
 	return()
 
 ###############################
-# mai                         #
+# main                        #
 ###############################
 
 def main():
+
+	print ("#" *5 + " exportVideoPreviews Begin")
 
 	cli_parser = argparse.ArgumentParser(prog = 'exportVideoPreviews',
 		description = '''%(prog)s is a tool to perform an export video preview on all xLights sequences in a show directory,''')
@@ -201,13 +204,12 @@ def main():
 		required = False)
 
 	### Get Arguments
-	print ("##### exportVideoPreview Started")
 	args = cli_parser.parse_args()
 	
-	xlightsshowfolder = args.xlightsshowfolder
+	xlightsshowfolder = os.path.abspath(args.xlightsshowfolder)
 	xlightsipaddress = args.xlightsipaddress
 	xlightsport = args.xlightsport
-	xlightsprogramfolder = args.xlightsprogramfolder
+	xlightsprogramfolder = os.path.abspath(args.xlightsprogramfolder)
 	outputfolder = args.outputfolder
 	verbose = args.verbose
 	if (verbose):
@@ -270,7 +272,7 @@ def main():
 				  sequence = file
 				  # Export Video Preview
 				  exportVideoPreview(baseURL, sequence, fullsequence, xlightsshowfolder, outputfolder, verbose)
-	print ("##### exportVideoPreview Ended")
+	print ("#" *5 + " exportVideoPreviews End")
 
 if __name__ == "__main__":
 	main()

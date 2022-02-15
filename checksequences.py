@@ -138,7 +138,7 @@ def checkSequence(baseURL, sequence, fullsequence, xlightsshowfolder, outputfold
 		newoutputfile = outputfile
 	else:
 		# Copy Check Sequence Output File to Check Sequence Output Folder using Sequence name
-		checksequencefolder = xlightsshowfolder + "\\" + outputfolder
+		checksequencefolder = os.path.abspath(xlightsshowfolder + "\\" + outputfolder)
 		# Folder does not exist?
 		if not os.path.isdir(checksequencefolder):
 			os.mkdir(checksequencefolder)
@@ -189,6 +189,8 @@ def checkSequence(baseURL, sequence, fullsequence, xlightsshowfolder, outputfold
 
 def main():
 
+	print ("#" *5 + " checkSequences Begin")
+
 	cli_parser = argparse.ArgumentParser(prog = 'checkSequences',
 		description = '''%(prog)s is a tool to perform a check sequence on all xLights sequences in a show directory,''')
 	
@@ -215,16 +217,14 @@ def main():
 	cli_parser.add_argument('-v', '--verbose', help = 'Verbose Logging', action='store_true',
 		required = False)
 
-	print ("##### checkSequence Started")
-	
 	### Get Arguments
 
 	args = cli_parser.parse_args()
 	
-	xlightsshowfolder = args.xlightsshowfolder
+	xlightsshowfolder = os.path.abspath(args.xlightsshowfolder)
 	xlightsipaddress = args.xlightsipaddress
 	xlightsport = args.xlightsport
-	xlightsprogramfolder = args.xlightsprogramfolder
+	xlightsprogramfolder = os.path.abspath(args.xlightsprogramfolder)
 	outputfolder = args.outputfolder
 	notepadopen = args.notepadopen
 	verbose = args.verbose
@@ -290,8 +290,7 @@ def main():
 					# Check Sequence
 					checkSequence(baseURL, sequence, fullsequence, xlightsshowfolder, outputfolder, notepadopen, verbose)
 
-	print ("##### checkSequence Ended")	
-				  
+	print ("#" *5 + " checkSequences End")	  
 
 if __name__ == "__main__":
 	main()

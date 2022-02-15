@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-# Name: renderAll.py
-# Purpose: render all xlLights sequences in a show folder and sub folders
+# Name: packageSequences.py
+# Purpose: perform a REST API packageSequence on all xLights sequences in a show folder and sub folders 
 # Author: Bill Jenkins
 # Version: v1.0
-# Date: 02/05/2022
+# Date: 02/11/2022
 
 ###############################
 # Imports                     #
@@ -17,6 +17,7 @@ import os
 import time
 import re
 import requests
+import shutil
 
 ###############################
 # doRequestsGet               #
@@ -36,7 +37,7 @@ def doRequestsGet(request, timeout, verbose):
 		status_code = ""
 		result = "##### Request HTTP Error: " + format(str(e))
 
-	# HTTP Connection Error?
+	# HTTP Connection Error?	
 	except requests.exceptions.ConnectionError as e:
 		ret_code = -2
 		status_code = ""
@@ -105,17 +106,17 @@ def startxLights(baseURL, xlightsprogramfile, verbose):
 	return(ret_code, status_code, result)
 
 ###############################
-# renderAll                   #
+# packageSequence             #
 ###############################
 
-def renderAll(baseURL, sequence, fullsequence, verbose):
+def packageSequence(baseURL, sequence, fullsequence, verbose):
 
 	# Open sequence
 	request = baseURL + "openSequence/" + re.sub(" ", r"%20", fullsequence)
 	if (verbose):
 		print ("##### Open Sequence %s" % sequence)
 		print ("request = ", request)
-	(ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
+	(ret_code, status_code, result) = doRequestsGet(request, 300, verbose)
 	# Request Error?
 	if (ret_code < 0):
 		print("Unable to connect to xLights REST API %s" % baseURL)
@@ -126,42 +127,31 @@ def renderAll(baseURL, sequence, fullsequence, verbose):
 		print ("status_code = ", status_code)
 		print ("result = ", result)
 	
-	# Render ALL sequence
-	request = baseURL + "renderAll"
-	print ("##### Render ALL sequence %s" % sequence)
+	# Package Sequence
+	request = baseURL + "packageSequence"
+	print ("##### Package Sequence %s" % sequence)
 	print ("request = ", request)
-	(ret_code, status_code, result) = doRequestsGet(request, 900, verbose)
-	# Request Error?
-	if (ret_code < 0):
-		print("Unable to connect to xLights REST API %s" % baseURL)
-		print ("ret_code = ", ret_code)
-		print ("result = ", result) 
-		sys.exit(ret_code)
-	print ("status_code = ", status_code)
-	print ("result = ", result)
-			
-	# Save sequence
-	request = baseURL + "saveSequence"
-	if (verbose):
-		print ("##### Save sequence %s" % sequence)
-		print ("request = ", request)
-	(ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
-	# Request Error?
-	if (ret_code < 0):
-		print("Unable to connect to xLights REST API %s" % baseURL)
-		print ("ret_code = ", ret_code)
-		print ("result = ", result) 
-		sys.exit(ret_code)
-	if (verbose):
+	# Disable Package Sequence Request
+	disabled = False
+	if (disabled):
+		print ("Package sequence request disabled to prevent xLights crash")
+	else:
+		(ret_code, status_code, result) = doRequestsGet(request, 900, verbose)
+		# Request Error?
+		if (ret_code < 0):
+			print("Unable to connect to xLights REST API %s" % baseURL)
+			print ("ret_code = ", ret_code)
+			print ("result = ", result) 
+			sys.exit(ret_code)
 		print ("status_code = ", status_code)
 		print ("result = ", result)
-	
+
 	# Close sequence
 	request = baseURL + "closeSequence"
 	if (verbose):
 		print ("##### Close sequence %s" % sequence)
-		print ("request = ", request)
-	(ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
+		print ("request = ", request)	
+	(ret_code, status_code, result) = doRequestsGet(request, 300, verbose)
 	# Request Error?
 	if (ret_code < 0):
 		print("Unable to connect to xLights REST API %s" % baseURL)
@@ -180,10 +170,10 @@ def renderAll(baseURL, sequence, fullsequence, verbose):
 
 def main():
 
-	print ("#" *5 + " renderAll Begin")
+	print ("#" *5 + " packageSequences Begin")
 
-	cli_parser = argparse.ArgumentParser(prog = 'renderAll',
-		description = '''%(prog)s is a tool to render all xLights sequences in a show folder,''')
+	cli_parser = argparse.ArgumentParser(prog = 'checkSequence',
+		description = '''%(prog)s is a tool to perform a REST API packageSequence on all xLights sequences in a show folder and sub folders,''')
 	
 	### Define Arguments	
 
@@ -193,28 +183,34 @@ def main():
 	cli_parser.add_argument('-i', '--xlightsipaddress', help = 'xLights REST API IP Address', default = "127.0.0.1",
 		required = False)
 
-	cli_parser.add_argument('-p', '--xlightsport', help = 'xLights REST API Port', default = "49913", choices = ["49913", "49914"],
+	cli_parser.add_argument('-p', '--xlightsport', help = 'xLights REST API xlightsport', default = "49913", choices = ["49913", "49914"],
 		required = False)
 
 	cli_parser.add_argument('-x', '--xlightsprogramfolder', help = 'xLights Program Folder', default = "c:\\program files\\xlights",
+		required = False)
+
+	cli_parser.add_argument('-o', '--outputfolder', help = 'Output Folder', default = "packageSequences",
 		required = False)
 
 	cli_parser.add_argument('-v', '--verbose', help = 'Verbose Logging', action='store_true',
 		required = False)
 
 	### Get Arguments
+
 	args = cli_parser.parse_args()
 	
-	xlightsshowfolder = os.path.abspath(args.xlightsshowfolder)
+	xlightsshowfolder = args.xlightsshowfolder
 	xlightsipaddress = args.xlightsipaddress
 	xlightsport = args.xlightsport
-	xlightsprogramfolder = os.path.abspath(args.xlightsprogramfolder)
+	xlightsprogramfolder = args.xlightsprogramfolder
+	outputfolder = args.outputfolder
 	verbose = args.verbose
 	if (verbose):
 		print ("xLights Show Folder = %s" % xlightsshowfolder)
 		print ("xLights IP Address = %s" % xlightsipaddress)
 		print ("xLights Port = %s" % xlightsport)
 		print ("xLights Program Folder = %s" % xlightsprogramfolder)
+		print ("Output Folder = %s" % outputfolder)
 	
 	# Base URL
 	baseURL = "http://" + xlightsipaddress + ":" + xlightsport + "/"
@@ -233,14 +229,12 @@ def main():
 		sys.exit(-1)
 
 	# Start xLights
-	(ret_code, status_code, result) = startxLights(baseURL, xlightsprogramfile, verbose)
-	# xLights Start Error?
-	if (ret_code < 0):
+	r = startxLights(baseURL, xlightsprogramfile, verbose)
+	# xLights Not Started?
+	if (r == "503"):
 		print("Unable to connect to xLights REST API %s" % baseURL)
-		print ("ret_code = ", ret_code)
-		print ("result = ", result)
-		sys.exit(ret_code)	
-	
+		sys.exit(-1)
+
 	# Change Show Folder
 	request = baseURL + "changeShowFolder?folder=" + re.sub(" ", r"%20", xlightsshowfolder)
 	if (verbose):
@@ -265,10 +259,12 @@ def main():
 				found = fullsequence.find("Backup\\")
 				# xLights Sequence File not in the Backup folder?
 				if (found < 0):
-				  sequence = file
-				  # Render All Sequence
-				  renderAll(baseURL, sequence, fullsequence, verbose)
-				  
-	print ("#" *5 + " renderAll End")
+					sequence = file
+					# Package Sequence
+					packageSequence(baseURL, sequence, fullsequence, verbose)
+
+	print ("#" *5 + " packageSequences End")
+
+
 if __name__ == "__main__":
 	main()

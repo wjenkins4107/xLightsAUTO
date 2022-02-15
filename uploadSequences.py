@@ -159,6 +159,8 @@ def uploadSequence(baseURL, uploadip, uploadmedia, uploadformat, uploadseq, verb
 
 def main():
 
+	print ("#" *5 + " uploadSequences Begin")
+
 	cli_parser = argparse.ArgumentParser(prog = 'uploadSequences',
 		description = '''%(prog)s is a tool to upload a sequence in a show folder and sub folders to players defined in  a csv formatted input file ,''')
    
@@ -182,16 +184,14 @@ def main():
 	cli_parser.add_argument('-v', '--verbose', help = 'Verbose Logging', action='store_true',
 		required = False)
 
-	print ("##### uploadSequences Started")
-
 	### Get Arguments
 	args = cli_parser.parse_args()
 	
-	uploadcsvfile = args.uploadcsvfile
-	xlightsshowfolder = args.xlightsshowfolder
+	uploadcsvfile = os.path.abspath(args.uploadcsvfile)
+	xlightsshowfolder = os.path.abspath(args.xlightsshowfolder)
 	xlightsipaddress = args.xlightsipaddress
 	xlightsport = args.xlightsport
-	xlightsprogramfolder = args.xlightsprogramfolder
+	xlightsprogramfolder = os.path.abspath(args.xlightsprogramfolder)
 	verbose = args.verbose
 	if (verbose):
 		print ("Upload Sequence CSV File = %s" % uploadcsvfile)
@@ -312,7 +312,7 @@ def main():
 						# Upload Sequence
 						uploadSequence(baseURL, uploadip, uploadmedia, uploadformat, uploadseq, verbose) 
 
-	print ("##### uploadSequences Ended")
+	print ("#" *5 + " uploadSequences End")
 
 if __name__ == "__main__":
 	main()

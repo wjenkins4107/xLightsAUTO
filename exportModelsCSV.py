@@ -115,6 +115,7 @@ def exportModelsCSV(baseURL, exportfilename, xlightsshowfolder, outputfolder, ve
 	if (outputfolder == "DEFAULT"):
 		outputfolder = xlightsshowfolder + "\\exportModelsCSV"
 	# Output Folder does not exist?
+	outputfolder = os.path.abspath(outputfolder)
 	if not os.path.isdir(outputfolder):
 		# Make Output Folder
 		os.mkdir(outputfolder)
@@ -142,6 +143,8 @@ def exportModelsCSV(baseURL, exportfilename, xlightsshowfolder, outputfolder, ve
 
 def main():
 
+	print ("#" *5 + " exportModelsCSV Begin")
+
 	cli_parser = argparse.ArgumentParser(prog = 'exportModelsCSV',
 		description = '''%(prog)s is a tool to perform a export models to an excel file,''')
 	
@@ -168,17 +171,15 @@ def main():
 	cli_parser.add_argument('-v', '--verbose', help = 'Verbose Logging', action='store_true',
 		required = False)
 
-	print ("##### exportModelsCSV Started")
-
 	### Get Arguments
 	args = cli_parser.parse_args()
 	
 	exportfilename = args.exportfilename
-	xlightsshowfolder = args.xlightsshowfolder
+	xlightsshowfolder = os.path.abspath(args.xlightsshowfolder)
 	outputfolder = args.outputfolder
 	xlightsipaddress = args.xlightsipaddress
 	xlightsport = args.xlightsport
-	xlightsprogramfolder = args.xlightsprogramfolder
+	xlightsprogramfolder = os.path.abspath(args.xlightsprogramfolder)
 	verbose = args.verbose
 	if (verbose):
 		print ("Excel Export Models File Name = %s" % exportfilename)
@@ -230,7 +231,7 @@ def main():
 
 	exportModelsCSV(baseURL, exportfilename, xlightsshowfolder, outputfolder, verbose)
 
-	print ("##### exportModelsCSV Ended")
+	print ("#" *5 + " exportModelsCSV End")
 
 if __name__ == "__main__":
 	main()
