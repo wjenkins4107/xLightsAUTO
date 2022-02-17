@@ -7,9 +7,9 @@ Vesion: 1.1
 
 # Environment
 
-Windows 10 64bit
-Python: v3.10.2
-xLights: v2022.04 64bit
+Windows 10 64bit  
+Python: v3.10.2  
+xLights: v2022.04 64bit  
 
 # Requirements:
 - xLights v2022.04+
