@@ -112,7 +112,7 @@ Parse the faceinFo element attributes for type matrix and merge face image files
 `python mergeFaces.py -s "g:\xlights\show\2021\christmas" -v`
 
 
-# Script: remderAll.py
+# Script: renderAll.py
 ## Description:
 Perform xLights REST API renderAll on all sequences in a show folder and sub folders
 
