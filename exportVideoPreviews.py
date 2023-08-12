@@ -200,6 +200,9 @@ def main():
 	cli_parser.add_argument('-o', '--outputfolder', help = 'Output Folder', default = "DEFAULT",
 		required = False)
 
+	cli_parser.add_argument('-c', '--closexlights' , help = 'Close xLights', action='store_true',
+		required = False)
+
 	cli_parser.add_argument('-v', '--verbose', help = 'Verbose Logging', action='store_true',
 		required = False)
 
@@ -211,6 +214,7 @@ def main():
 	xlightsport = args.xlightsport
 	xlightsprogramfolder = os.path.abspath(args.xlightsprogramfolder)
 	outputfolder = args.outputfolder
+	closexlights = args.closexlights
 	verbose = args.verbose
 	if (verbose):
 		print ("xLights Show Folder = %s" % xlightsshowfolder)
@@ -218,7 +222,8 @@ def main():
 		print ("xLights Port = %s" % xlightsport)
 		print ("xLights Program Folder = %s" % xlightsprogramfolder)
 		print ("Output Folder = %s" % outputfolder)
-	
+		print ("Close xLights = %s" % closexlights)
+    
 	# Base URL
 	baseURL = "http://" + xlightsipaddress + ":" + xlightsport + "/"
 	if (verbose):
@@ -272,6 +277,20 @@ def main():
 				  sequence = file
 				  # Export Video Preview
 				  exportVideoPreview(baseURL, sequence, fullsequence, xlightsshowfolder, outputfolder, verbose)
+
+	### Close xLights
+	if (closexlights):
+		request = baseURL + "closexLights"
+		if (verbose):
+			print("##### closexLights")
+			print("request = ", request)
+		(ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
+		if (ret_code < 0):
+			print("Unable to close xLights %s" % baseURL)
+			print("ret_code = ", ret_code)
+			print("result = ", result)
+			sys.exit(ret_code)
+
 	print ("#" *5 + " exportVideoPreviews End")
 
 if __name__ == "__main__":

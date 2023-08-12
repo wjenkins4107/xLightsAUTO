@@ -214,6 +214,9 @@ def main():
 	cli_parser.add_argument('-n', '--notepadopen' , help = 'Notepad Open', action='store_true',
 		required = False)
 
+	cli_parser.add_argument('-c', '--closexlights' , help = 'Close xLights', action='store_true',
+		required = False)    
+
 	cli_parser.add_argument('-v', '--verbose', help = 'Verbose Logging', action='store_true',
 		required = False)
 
@@ -227,6 +230,7 @@ def main():
 	xlightsprogramfolder = os.path.abspath(args.xlightsprogramfolder)
 	outputfolder = args.outputfolder
 	notepadopen = args.notepadopen
+	closexlights = args.closexlights
 	verbose = args.verbose
 	if (verbose):
 		print ("Xlights Show Folder = %s" % xlightsshowfolder)
@@ -235,6 +239,7 @@ def main():
 		print ("xLights Program Folder = %s" % xlightsprogramfolder)
 		print ("Output Folder = %s" % outputfolder)
 		print ("Notepad Open = %s" % notepadopen)
+		print ("Close xLights = %s" % closexlights)
 
 	
 	# Base URL
@@ -289,6 +294,18 @@ def main():
 					sequence = file 
 					# Check Sequence
 					checkSequence(baseURL, sequence, fullsequence, xlightsshowfolder, outputfolder, notepadopen, verbose)
+	### Close xLights
+	if (closexlights):
+		request = baseURL + "closexLights"
+		if (verbose):
+			print("##### closexLights")
+			print("request = ", request)
+		(ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
+		if (ret_code < 0):
+			print("Unable to close xLights %s" % baseURL)
+			print("ret_code = ", ret_code)
+			print("result = ", result)
+			sys.exit(ret_code)
 
 	print ("#" *5 + " checkSequences End")	  
 

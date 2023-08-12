@@ -189,8 +189,8 @@ def main():
 	cli_parser.add_argument('-x', '--xlightsprogramfolder', help = 'xLights Program Folder', default = "c:\\program files\\xlights",
 		required = False)
 
-	cli_parser.add_argument('-o', '--outputfolder', help = 'Output Folder', default = "packageSequences",
-		required = False)
+	cli_parser.add_argument('-c', '--closexlights' , help = 'Close xLights', action='store_true',
+		required = False)    
 
 	cli_parser.add_argument('-v', '--verbose', help = 'Verbose Logging', action='store_true',
 		required = False)
@@ -203,14 +203,15 @@ def main():
 	xlightsipaddress = args.xlightsipaddress
 	xlightsport = args.xlightsport
 	xlightsprogramfolder = args.xlightsprogramfolder
-	outputfolder = args.outputfolder
+	closexlights = args.closexlights
 	verbose = args.verbose
 	if (verbose):
 		print ("xLights Show Folder = %s" % xlightsshowfolder)
 		print ("xLights IP Address = %s" % xlightsipaddress)
 		print ("xLights Port = %s" % xlightsport)
 		print ("xLights Program Folder = %s" % xlightsprogramfolder)
-		print ("Output Folder = %s" % outputfolder)
+		print ("Close xLights = %s" % closexlights)
+
 	
 	# Base URL
 	baseURL = "http://" + xlightsipaddress + ":" + xlightsport + "/"
@@ -263,8 +264,19 @@ def main():
 					# Package Sequence
 					packageSequence(baseURL, sequence, fullsequence, verbose)
 
+	### Close xLights
+	if (closexlights):
+		request = baseURL + "closexLights"
+		if (verbose):
+			print("##### closexLights")
+			print("request = ", request)
+		(ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
+		if (ret_code < 0):
+			print("Unable to close xLights %s" % baseURL)
+			print("ret_code = ", ret_code)
+			print("result = ", result)
+			sys.exit(ret_code)
 	print ("#" *5 + " packageSequences End")
-
 
 if __name__ == "__main__":
 	main()

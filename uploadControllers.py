@@ -179,7 +179,8 @@ def main():
 
 	cli_parser.add_argument('-x', '--xlightsprogramfolder', help = 'xLights Program Folder', default = "c:\\program files\\xlights",
 		required = False)
-
+	cli_parser.add_argument('-c', '--closexlights' , help = 'Close xLights', action='store_true',
+		required = False)
 	cli_parser.add_argument('-v', '--verbose', help = 'Verbose Logging', action='store_true',
 		required = False)
 
@@ -190,12 +191,14 @@ def main():
 	xlightsipaddress = args.xlightsipaddress
 	xlightsport = args.xlightsport
 	xlightsprogramfolder = os.path.abspath(args.xlightsprogramfolder)
+	closexlights = args.closexlights
 	verbose = args.verbose
 	if (verbose):
 		print ("xLights Show Folder = %s" % xlightsshowfolder)
 		print ("xLights IP Address = %s" % xlightsipaddress)
 		print ("xLights Port = %s" % xlightsport)
 		print ("xLights Program Folder = %s" % xlightsprogramfolder)
+		print ("Close xLights = %s" % closexlights)
 
 	# verify xlights show folder exists
 	if not os.path.isdir(xlightsshowfolder):
@@ -259,6 +262,18 @@ def main():
 		# Upload Configuration
 		uploadController(baseURL, uploadip, verbose) 
 
+	### Close xLights
+	if (closexlights):
+		request = baseURL + "closexLights"
+		if (verbose):
+			print("##### closexLights")
+			print("request = ", request)
+		(ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
+		if (ret_code < 0):
+			print("Unable to close xLights %s" % baseURL)
+			print("ret_code = ", ret_code)
+			print("result = ", result)
+			sys.exit(ret_code)
 	print ("#" *5 + " uploadControllers End")
 
 if __name__ == "__main__":

@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
-# Name: uploadSequences.py
-# Purpose: Upload a sequence in a show folders and sub folders to players defined in  a csv formatted input file 
+# Name: cleanupFileLocations.py
+# Purpose: clean up file locations in all xlLights sequences in a show folder and sub folders
 # Author: Bill Jenkins
 # Version: v1.0
-# Date: 02/07/2022
+# Date: 08/12/2023
 
-###########################
-# Imports                 #
-###########################
+###############################
+# Imports                     #
+###############################
 
 import argparse
 import sys
@@ -17,7 +17,10 @@ import os
 import time
 import re
 import requests
-import csv
+
+###############################
+# doRequestsGet               #
+###############################
 
 def doRequestsGet(request, timeout, verbose):
 
@@ -33,7 +36,7 @@ def doRequestsGet(request, timeout, verbose):
 		status_code = ""
 		result = "##### Request HTTP Error: " + format(str(e))
 
-	# HTTP Connection Error?   
+	# HTTP Connection Error?
 	except requests.exceptions.ConnectionError as e:
 		ret_code = -2
 		status_code = ""
@@ -74,7 +77,6 @@ def startxLights(baseURL, xlightsprogramfile, verbose):
 			case 0:
 				startloop = False
 				if (verbose):
-					print ("ret_code = ", ret_code)
 					print ("status_code = ", status_code)
 					print ("result = ", result)
 			# REST API Connection Error?
@@ -105,7 +107,7 @@ def startxLights(baseURL, xlightsprogramfile, verbose):
 import urllib.parse
 
 ###############################
-# createParamsStr             #
+# createParamsStr			  #
 ###############################
 
 def createParamsStr(params_dict, verbose): 
@@ -115,7 +117,7 @@ def createParamsStr(params_dict, verbose):
 
 	params_str = ""
 	params_ctr = 0
-	params_len = len(params_dict)		 
+	params_len = len(params_dict) 
 
 	for params_key, params_value in params_dict.items():
 		params_ctr += 1
@@ -134,44 +136,94 @@ def createParamsStr(params_dict, verbose):
 	
 	return(params_str)
 
-def uploadSequence(baseURL, uploadip, uploadmedia, uploadformat, uploadseq, verbose):
+###############################
+# cleanupFileLocations        #
+###############################
 
-	
-	params_dict =  {"ip": uploadip, "media": uploadmedia, "format": uploadformat, "seq": uploadseq}
-	uploadparams = createParamsStr(params_dict, verbose)
-	request = baseURL + "uploadSequence/" + uploadparams  
-	print ("Upload Sequence:%s to Player IP:%s" % (uploadseq, uploadip)) 
-	print ("   Media:%s Format:%s" % (uploadmedia, uploadformat))
+def cleanupFileLocations(baseURL, sequence, fullsequence, verbose):
+
+	# Open sequence
+	params_dict =  {"seq": fullsequence}
+	fppparams = createParamsStr(params_dict, verbose)
+	request = baseURL + "openSequence/" + fppparams
 	if (verbose):
-	   print ("request = ", request)	
+		print ("##### Open Sequence %s" % sequence)
+		print ("request = ", request)
+	(ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
+	# Request Error?
+	if (ret_code < 0):
+		print("Unable to connect to xLights REST API %s" % baseURL)
+		print ("ret_code = ", ret_code)
+		print ("result = ", result) 
+		sys.exit(ret_code)
+	if (verbose):
+		print ("status_code = ", status_code)
+		print ("result = ", result)
+	# Clean Up File Locations
+	request = baseURL + "cleanupFileLocations"
 	(ret_code, status_code, result) = doRequestsGet(request, 900, verbose)
 	# Request Error?
 	if (ret_code < 0):
-	   print("Unable to connect to xLights REST API %s" % baseURL)
-	   print ("ret_code = ", ret_code)
-	   print ("result = ", result) 
-	   sys.exit("*** Error in Request to Rest API")
-	# 
+		print("Unable to connect to xLights REST API %s" % baseURL)
+		print ("ret_code = ", ret_code)
+		print ("result = ", result) 
+		sys.exit(ret_code)
+	
+	
+	print ("sequence = ", sequence)
 	print ("status_code = ", status_code)
 	print ("result = ", result)
+	# Save sequence
+	request = baseURL + "saveSequence"
+	if (verbose):
+		print ("##### Save sequence %s" % sequence)
+		print ("request = ", request)
+	(ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
+	# Request Error?
+	if (ret_code < 0):
+		print("Unable to connect to xLights REST API %s" % baseURL)
+		print ("ret_code = ", ret_code)
+		print ("result = ", result) 
+		sys.exit(ret_code)
+	if (verbose):
+		print ("status_code = ", status_code)
+		print ("result = ", result)
+	# Close sequence
+	request = baseURL + "closeSequence"
+	if (verbose):
+		print ("##### Close sequence %s" % sequence)
+		print ("request = ", request)
+	(ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
+	# Request Error?
+	if (ret_code < 0):
+		print("Unable to connect to xLights REST API %s" % baseURL)
+		print ("ret_code = ", ret_code)
+		print ("result = ", result) 
+		sys.exit(ret_code)
+	if (verbose):
+		print ("status_code = ", status_code)
+		print ("result = ", result)
+		
+	
 
 	return()
 
+###############################
+# main                        #
+###############################
+
 def main():
 
-	print ("#" *5 + " uploadSequences Begin")
+	print ("#" *5 + " cleanupFileLocations Begin")
 
-	cli_parser = argparse.ArgumentParser(prog = 'uploadSequences',
-		description = '''%(prog)s is a tool to upload a sequence in a show folder and sub folders to players defined in  a csv formatted input file ,''')
-   
+	cli_parser = argparse.ArgumentParser(prog = 'cleanupFileLocation',
+		description = '''%(prog)s is a tool to render all xLights sequences in a show folder,''')
+	
 	### Define Arguments	
 
-	cli_parser.add_argument('-u', '--uploadcsvfile', help = 'Upload CSV File',
+	cli_parser.add_argument('-s', '--xlightsshowfolder', help = 'xLights Show Folder',
 		required = True)
 
-	cli_parser.add_argument('-s', '--xlightsshowfolder', help = 'xLights Show Folder',
-		required = True)		
-	
 	cli_parser.add_argument('-i', '--xlightsipaddress', help = 'xLights REST API IP Address', default = "127.0.0.1",
 		required = False)
 
@@ -180,6 +232,7 @@ def main():
 
 	cli_parser.add_argument('-x', '--xlightsprogramfolder', help = 'xLights Program Folder', default = "c:\\program files\\xlights",
 		required = False)
+		
 
 	cli_parser.add_argument('-c', '--closexlights' , help = 'Close xLights', action='store_true',
 		required = False)
@@ -190,7 +243,6 @@ def main():
 	### Get Arguments
 	args = cli_parser.parse_args()
 	
-	uploadcsvfile = os.path.abspath(args.uploadcsvfile)
 	xlightsshowfolder = os.path.abspath(args.xlightsshowfolder)
 	xlightsipaddress = args.xlightsipaddress
 	xlightsport = args.xlightsport
@@ -198,22 +250,22 @@ def main():
 	closexlights = args.closexlights
 	verbose = args.verbose
 	if (verbose):
-		print ("Upload Sequence CSV File = %s" % uploadcsvfile)
 		print ("xLights Show Folder = %s" % xlightsshowfolder)
 		print ("xLights IP Address = %s" % xlightsipaddress)
 		print ("xLights Port = %s" % xlightsport)
 		print ("xLights Program Folder = %s" % xlightsprogramfolder)
 		print ("Close xLights = %s" % closexlights)
+
 	
-	# verify upload file exists
-	if not os.path.isfile(uploadcsvfile):
-		print("Error: Upload Sequence CSV file not found %s" % uploadcsvfile)
-		sys.exit(-1)
-		
-	# verify xlights show folder exists
+	# Base URL
+	baseURL = "http://" + xlightsipaddress + ":" + xlightsport + "/"
+	if (verbose):
+		print ("Base URL = %s" % baseURL)
+
+	# Verify Show Folder
 	if not os.path.isdir(xlightsshowfolder):
 		print("Error: xLights Show Folder not found %s" % xlightsshowfolder)
-		sys.exit(-1)
+		sys.exit(-5)
 
 	# verify xlights program file exists
 	xlightsprogramfile = xlightsprogramfolder + "\\xlights.exe"
@@ -221,25 +273,20 @@ def main():
 		print("Error: xLights Program File not found %s" % xlightsprogramfile)
 		sys.exit(-1)
 
-	# Base URL
-	baseURL = "http://" + xlightsipaddress + ":" + xlightsport + "/"
-	if (verbose):
-		print ("Base URL = %s" % baseURL)
-
-	# Start xLights?
+	# Start xLights
 	(ret_code, status_code, result) = startxLights(baseURL, xlightsprogramfile, verbose)
 	# xLights Start Error?
 	if (ret_code < 0):
 		print("Unable to connect to xLights REST API %s" % baseURL)
 		print ("ret_code = ", ret_code)
 		print ("result = ", result)
-		sys.exit("*** Error in Request to REST API")
-		   
+		sys.exit(ret_code)	
+	
 	# Change Show Folder
 	request = baseURL + "changeShowFolder?folder=" + re.sub(" ", r"%20", xlightsshowfolder)
 	if (verbose):
 		print ("##### Change Show Folder")
-		print ("request = ", request)	
+		print ("request = ", request)
 	(ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
 	if (ret_code < 0):	
 		print("Unable to connect to xLights REST API %s" % baseURL)
@@ -249,57 +296,8 @@ def main():
 	if (verbose):
 		print ("status_code = ", status_code)
 		print ("result = ", result)
-	# Get Controller IPs 
-	request = baseURL + "getControllerIPs" 
-	if (verbose):
-		print ("##### Get Controller IP Address")
-		print ("request = ", request)	
-	(ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
-	if (ret_code < 0):	
-		print("Unable to connect to xLights REST API %s" % baseURL)
-		print ("ret_code = ", ret_code)
-		print ("result = ", result)
-		sys.exit(ret_code)	
-	if (verbose):
-		print ("status_code = ", status_code)
-		print ("result = ", result)
-	controllerIPs = result
-	# Compile Searches
-	p1 = re.compile(r"^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$")
-	# Load upload file parms into list
-	uploadfileparms_list = []
-	with open(uploadcsvfile) as csvDataFile:
-		csvReader = csv.reader(csvDataFile)
-		for row in csvReader:
-			if (verbose):
-			   print ("Upload parms %s" % row)
-			rowstr = str(row)
-			if (rowstr[2] != "#"):
-				# Valid Number of Parms?
-				if (len(row) == 3):
-					uploadip = row[0]
-					s1 = p1.search(uploadip)
-					if (not s1):
-						sys.exit("*** ERROR Invalid IPv4 Address %s" % uploadip)
-					if uploadip not in controllerIPs:
-						sys.exit("*** ERROR Controller IP %s not defined in Xlights" % uploadip)
-					uploadmedia = row[1]
-					if uploadmedia not in ["true","false"]:
-						print ("*** Media parm invalid on %s changed to default of \"false\"" % uploadip)
-						uploadmedia = "false"
-					uploadformat = row[2]
-					if uploadformat not in ["v1", "v2std", "v2zlib", "v2uncompressedsparse", "v2uncompressed", "v2stdsparse", "v2zlibsparse"]:
-						print ("*** Format parm invalid on %s changed to default of \"v2std\"" % uploadip)
-						uploadformat = "v2std"
-					uploadfileparms_list.append([uploadip, uploadmedia, uploadformat])
-					if (verbose):
-						print (uploadip)
-						print (uploadmedia)
-						print (uploadformat)
-				else:
-					print ("*** Invalid number of upload parms %s" % row)
-	
-	# OS Walk Show Folder Recursively
+
+	### OS Walk Show Folder Recursively
 	for root, dir, files in os.walk(xlightsshowfolder):
 		for file in files:
 			# xLights Sequence File?
@@ -308,15 +306,28 @@ def main():
 				found = fullsequence.find("Backup\\")
 				# xLights Sequence File not in the Backup folder?
 				if (found < 0):
-					uploadseq = fullsequence
-					# Get Upload Sequence Parms
-					for i in range(len(uploadfileparms_list)):
-						uploadip = uploadfileparms_list[i][0]
-						uploadmedia = uploadfileparms_list[i][1]
-						uploadformat = uploadfileparms_list[i][2]
-						# Upload Sequence
-						uploadSequence(baseURL, uploadip, uploadmedia, uploadformat, uploadseq, verbose) 
+				  sequence = file
+				  # Render All Sequence
+				  cleanupFileLocations(baseURL, sequence, fullsequence, verbose)
+				  
 
+	# Save Layout
+	request = baseURL + "saveLayout"
+	if (verbose):
+		print ("##### Save Layout")
+		print ("request = ", request)
+	(ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
+	# Request Error?
+	if (ret_code < 0):
+		print("Unable to connect to xLights REST API %s" % baseURL)
+		print ("ret_code = ", ret_code)
+		print ("result = ", result) 
+		sys.exit(ret_code)
+	if (verbose):
+		print ("status_code = ", status_code)
+		print ("result = ", result)
+		
+	
 	### Close xLights
 	if (closexlights):
 		request = baseURL + "closexLights"
@@ -329,8 +340,7 @@ def main():
 			print("ret_code = ", ret_code)
 			print("result = ", result)
 			sys.exit(ret_code)
-
-	print ("#" *5 + " uploadSequences End")
-
+	
+	print ("#" *5 + " cleanupFileLocations End")
 if __name__ == "__main__":
 	main()

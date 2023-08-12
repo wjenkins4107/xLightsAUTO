@@ -104,14 +104,48 @@ def startxLights(baseURL, xlightsprogramfile, verbose):
 			
 	return(ret_code, status_code, result)
 
+import urllib.parse
+
+###############################
+# createParamsStr			  #
+###############################
+
+def createParamsStr(params_dict, verbose): 
+
+	if (verbose):
+		print ("params_dict = %s" % params_dict)
+
+	params_str = ""
+	params_ctr = 0
+	params_len = len(params_dict) 
+
+	for params_key, params_value in params_dict.items():
+		params_ctr += 1
+		if (params_ctr == 1):
+			if params_ctr == params_len:
+				params_str = "?" + params_key + "=" + str(params_value)
+			else:
+				params_str = "?" + params_key + "=" + str(params_value) + "&"
+		elif(params_ctr < params_len):
+			params_str = params_str + params_key + "=" + str(params_value) + "&"
+		else:
+			params_str = params_str + params_key + "=" + str(params_value)
+	params_str = re.sub(" ", "%20", params_str)
+	if (verbose):
+		print ("params_str = %s" % params_str)
+	
+	return(params_str)
+
 ###############################
 # renderAll                   #
 ###############################
 
-def renderAll(baseURL, sequence, fullsequence, verbose):
+def renderAll(baseURL, sequence, fullsequence, highdef, verbose):
 
 	# Open sequence
-	request = baseURL + "openSequence/" + re.sub(" ", r"%20", fullsequence)
+	params_dict =  {"seq": fullsequence}
+	fppparams = createParamsStr(params_dict, verbose)
+	request = baseURL + "openSequence/" + fppparams
 	if (verbose):
 		print ("##### Open Sequence %s" % sequence)
 		print ("request = ", request)
@@ -125,9 +159,10 @@ def renderAll(baseURL, sequence, fullsequence, verbose):
 	if (verbose):
 		print ("status_code = ", status_code)
 		print ("result = ", result)
-	
 	# Render ALL sequence
-	request = baseURL + "renderAll"
+	params_dict =  {"highdef": highdef}
+	fppparams = createParamsStr(params_dict, verbose)
+	request = baseURL + "renderAll/" + fppparams
 	print ("##### Render ALL sequence %s" % sequence)
 	print ("request = ", request)
 	(ret_code, status_code, result) = doRequestsGet(request, 900, verbose)
@@ -139,7 +174,6 @@ def renderAll(baseURL, sequence, fullsequence, verbose):
 		sys.exit(ret_code)
 	print ("status_code = ", status_code)
 	print ("result = ", result)
-			
 	# Save sequence
 	request = baseURL + "saveSequence"
 	if (verbose):
@@ -155,7 +189,6 @@ def renderAll(baseURL, sequence, fullsequence, verbose):
 	if (verbose):
 		print ("status_code = ", status_code)
 		print ("result = ", result)
-	
 	# Close sequence
 	request = baseURL + "closeSequence"
 	if (verbose):
@@ -198,6 +231,12 @@ def main():
 
 	cli_parser.add_argument('-x', '--xlightsprogramfolder', help = 'xLights Program Folder', default = "c:\\program files\\xlights",
 		required = False)
+		
+	cli_parser.add_argument('-d', '--highdef', help = 'High Definition', default = "true", choices = ["true", "false"],
+		required = False)
+
+	cli_parser.add_argument('-c', '--closexlights' , help = 'Close xLights', action='store_true',
+		required = False)
 
 	cli_parser.add_argument('-v', '--verbose', help = 'Verbose Logging', action='store_true',
 		required = False)
@@ -209,12 +248,17 @@ def main():
 	xlightsipaddress = args.xlightsipaddress
 	xlightsport = args.xlightsport
 	xlightsprogramfolder = os.path.abspath(args.xlightsprogramfolder)
+	highdef = args.highdef
+	closexlights = args.closexlights
 	verbose = args.verbose
 	if (verbose):
 		print ("xLights Show Folder = %s" % xlightsshowfolder)
 		print ("xLights IP Address = %s" % xlightsipaddress)
 		print ("xLights Port = %s" % xlightsport)
 		print ("xLights Program Folder = %s" % xlightsprogramfolder)
+		print ("High Definition = %s" % highdef)
+		print ("Close xLights = %s" % closexlights)
+
 	
 	# Base URL
 	baseURL = "http://" + xlightsipaddress + ":" + xlightsport + "/"
@@ -267,8 +311,22 @@ def main():
 				if (found < 0):
 				  sequence = file
 				  # Render All Sequence
-				  renderAll(baseURL, sequence, fullsequence, verbose)
+				  renderAll(baseURL, sequence, fullsequence, highdef, verbose)
 				  
+
+	### Close xLights
+	if (closexlights):
+		request = baseURL + "closexLights"
+		if (verbose):
+			print("##### closexLights")
+			print("request = ", request)
+		(ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
+		if (ret_code < 0):
+			print("Unable to close xLights %s" % baseURL)
+			print("ret_code = ", ret_code)
+			print("result = ", result)
+			sys.exit(ret_code)
+	
 	print ("#" *5 + " renderAll End")
 if __name__ == "__main__":
 	main()
