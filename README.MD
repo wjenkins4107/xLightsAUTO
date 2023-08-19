@@ -19,6 +19,9 @@ xLights: v2023.11 64bit
   -   download and install from python.org
   - install requests package
         `pip install requests`
+  - install xlsxwriter package
+        `pip install xlsxwriter`
+
 
 # Script: checkSeqMedia.py       #
 Check sequence media (audio, images, shaders and videos) and verify that they exist, list any errors found and a summary for each sequence
@@ -45,7 +48,7 @@ Perform xLights REST API check sequence on all sequences in a show folder and su
     -v    --verbose              ; Verbose logging              ; action = "store_true"                          ; Required = False
 
 ## Example:
-`python checkSequences.py -s "g:\xlights\show\test show" -c -v`
+`python checkSequences.py -s "g:\xLights\Show\Test Show" -c -v`
 
 # Script: exportModelsCSV.py  
 ## Description:
@@ -62,7 +65,7 @@ Perform xLights REST API exportModelsCSV and output to folder.  **NOTE** If Outp
     -v    --verbose              ; Verbose logging              ; action = "store_true"                          ; Required = False
 
 ## Example:
-`python exportModelsCSV.py -f exportModels -s "g:\xlights\show\2021\christmas"`
+`python exportModelsCSV.py -f exportModels -s "g:\xLights\Show\2021\Christmas"`
 
 # Script: exportVideoPreviews.py
 
@@ -79,7 +82,7 @@ Perform xLights REST API exportVideoPreview on all sequences in a show folder.  
     -v    --verbose              ; Verbose logging              ; action = "store_true"                          ; Required = False
 
 ## Example:
-`python exportVideoPreviews.py -s "g:\xlights\show\2021\christmas"`
+`python exportVideoPreviews.py -s "g:\xLights\Show\2021\Christmas"`
 
 # Script: renderAll.py
 ## Description:
@@ -106,7 +109,7 @@ Perform xLights REST API uploadController using REST API ControllerIPs to obtain
     -v    --verbose              ; Verbose logging              ; action = "store_true"                          ; Required = False
 
 ## Example:
-`python uploadControllers.py -s "g:\xlights\show\2021\christmas"`
+`python uploadControllers.py -s "g:\xLights\Show\2021\Christmas"`
 
 # Script: uploadFPPConfigs.py
 ## Description:
@@ -122,7 +125,7 @@ Perform xLights REST API uploadFPPConfig using parameters from am upload FPP Con
     -v    --verbose              ; Verbose logging              ; action = "store_true"                          ; Required = False
 
 ## Example:
-`python uploadFPPConfigs.py -u "g:\xlights\show\auto\uploadfpp.csv" -s "g:\xlights\show\2021\christmas" -v`
+`python uploadFPPConfigs.py -u "g:\xLights\Show\Auto\uploadfpp.csv" -s "g:\xLights\Show\2021\Christmas" -v`
 
 ## CSV Format
 
@@ -157,7 +160,7 @@ Perform xLights REST API uploadSequence on all sequences in a show folder and su
     -v    --verbose              ; Verbose logging              ; action = "store_true"                          ; Required = False
 
 ## Example:
-`python uploadSequences.py -u "g:\xlights\show\auto\uploadseq.csv" -s "g:\xlights\show\2021\christmas" -v`
+`python uploadSequences.py -u "g:\xLights\Show\Auto\uploadseq.csv" -s "g:\xLights\Show\2021\Christmas" -v`
 
 ## Upload CSV Upload Sequence File Format
 
@@ -177,3 +180,19 @@ Perform xLights REST API uploadSequence on all sequences in a show folder and su
     10.222.50.7,true,v2std
     # FPP Remote
     10.222.50.8,false,v2stdsparse
+
+# Script: xlDoc.py
+
+## Description:
+Perform parse of xlights_networks.xml and xlights_rgbeffects.xml files for information and write to Excel spreadsheet
+
+## Arguments:
+    -s    --xlightsshowfolder          ; xLights Show Folder          ;                                          ; Required = True
+    -n    --xlightsnetworksxmlfile     ; xLights Networks XML File    ; default = "xlights_networks.xml"         ; Required = False
+    -p    --xlightrgbeffetcsxmlfile    ; xLights RGB Effects XML File ; default = "xlights_rgbeffects.xml"       ; Required = False
+    -x    --wbfile                     ; Workbook File Name           ; default = "DEFAULT"                      ; Required = False
+    -o    --wbfmtfile                  : Workbook Format File         ; default = "DEFAULT"                      ; Required = False
+    -v    --verbose                    ; Verbose logging              ; action = "store_true"                    ; Required = False
+
+## Example:
+`python xlDoc.py -s "g:\xLights\Show\RestAPI"`
