@@ -195,13 +195,13 @@ Perform parse of xlights_networks.xml and xlights_rgbeffects.xml files for infor
     -v    --verbose                    ; Verbose logging              ; action = "store_true"                    ; Required = False
 
 ## Example:
-python xlDoc.py -s "g:\xLights\Show\RestAPI"`
+`python xlDoc.py -s "g:\xLights\Show\RestAPI"`
 
 ## Directorys:
-  images: Workbook Images
-    files: default-image.png
-  workbookformats: Workbook Formarts
-    file: default-workbookformats.txt
-  workbooks:
-    file: xlDoc-Sample.xlsx
-    file: xlDOc Sample Output.pdf
+    images: Workbook Images
+      files: default-image.png
+    workbookformats: Workbook Formarts
+      file: default-workbookformats.txt
+    workbooks:
+      file: xlDoc-Sample.xlsx
+      file: xlDOc Sample Output.pdf
