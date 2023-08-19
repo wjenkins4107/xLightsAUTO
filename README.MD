@@ -197,7 +197,7 @@ Perform parse of xlights_networks.xml and xlights_rgbeffects.xml files for infor
 ## Example:
 `python xlDoc.py -s "g:\xLights\Show\RestAPI"`
 
-Directorys:
+## Directorys:
   images: Workbook Images
     files: default-image.png
   workbookformats: Workbook Formarts
