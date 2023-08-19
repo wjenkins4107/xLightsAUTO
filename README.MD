@@ -200,7 +200,7 @@ Perform parse of xlights_networks.xml and xlights_rgbeffects.xml files for infor
 ## Directorys:
     images: Workbook Images
       files: default-image.png
-    workbookformats: Workbook Formarts
+    workbookformats: Workbook Formats
       file: default-workbookformats.txt
     workbooks:
       file: xlDoc-Sample.xlsx
