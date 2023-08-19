@@ -7,16 +7,16 @@ Vesion: 4.0
 
 # Environment
 
-Windows 10 64bit  
-Python: v3.10.2  
+Windows 11 64bit  
+Python: v3.11.1  
 xLights: v2023.11 64bit  
 
 # Requirements:
-- xLights v2022.04+
+- xLights v2023.11+
   - Enable xLights REST API
     - File --> Preferences --> Output --> xFade/XSchedule --> Port A (49913) or Port B (49914)
-- Python v3.10.2+
-  -   download and install from python.org
+- Python v3.11.1+
+  - download and install python from python.org
   - install requests package
         `pip install requests`
   - install xlsxwriter package
