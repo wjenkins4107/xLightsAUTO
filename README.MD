@@ -180,28 +180,3 @@ Perform xLights REST API uploadSequence on all sequences in a show folder and su
     10.222.50.7,true,v2std
     # FPP Remote
     10.222.50.8,false,v2stdsparse
-
-# Script: xlDoc.py
-
-## Description:
-Perform parse of xlights_networks.xml and xlights_rgbeffects.xml files for information and write to Excel spreadsheet
-
-## Arguments:
-    -s    --xlightsshowfolder          ; xLights Show Folder          ;                                          ; Required = True
-    -n    --xlightsnetworksxmlfile     ; xLights Networks XML File    ; default = "xlights_networks.xml"         ; Required = False
-    -p    --xlightrgbeffetcsxmlfile    ; xLights RGB Effects XML File ; default = "xlights_rgbeffects.xml"       ; Required = False
-    -x    --wbfile                     ; Workbook File Name           ; default = "DEFAULT"                      ; Required = False
-    -o    --wbfmtfile                  : Workbook Format File         ; default = "DEFAULT"                      ; Required = False
-    -v    --verbose                    ; Verbose logging              ; action = "store_true"                    ; Required = False
-
-## Example:
-`python xlDoc.py -s "g:\xLights\Show\RestAPI"`
-
-## Directorys:
-    images: Workbook Images
-      files: default-image.png
-    workbookformats: Workbook Formats
-      file: default-workbookformats.txt
-    workbooks:
-      file: xlDoc-Sample.xlsx
-      file: xlDOc Sample Output.pdf
