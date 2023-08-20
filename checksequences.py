@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-# Name: renderAll.py
-# Purpose: render all xlLights sequences in a show folder and sub folders
+# Name: checkSequences.py
+# Purpose: check sequence for all sequences in a show folder and sub folders
 # Author: Bill Jenkins
-# Version: v1.0
-# Date: 02/05/2022
+# Version: v2.0
+# Date: 08/15/2023
 
 ###############################
 # Imports                     #
@@ -17,15 +17,18 @@ import os
 import time
 import re
 import requests
+import json
 
 ###########################
 # From Imports            #
 ###########################
+
+from shutil import copy
 from functools import partial
 from tkinter import *
 from pathlib import Path
 
-##############################
+###############################
 # path_exists_case_sensitive  #
 ###############################
 def path_exists_case_sensitive(path, verbose) -> bool:
@@ -68,7 +71,7 @@ def doRequestsGet(request, timeout, verbose):
         status_code = ""
         result = "##### Request HTTP Error: " + format(str(e))
 
-    # HTTP Connection Error?
+    # HTTP Connection Error?    
     except requests.exceptions.ConnectionError as e:
         ret_code = -2
         status_code = ""
@@ -89,7 +92,7 @@ def doRequestsGet(request, timeout, verbose):
     return(ret_code, status_code, result)
 
 ###############################
-# startxLights                #
+# startxLights                  #
 ###############################
 
 def startxLights(baseURL, xlightsprogramfile, verbose):
@@ -136,110 +139,83 @@ def startxLights(baseURL, xlightsprogramfile, verbose):
             
     return(ret_code, status_code, result)
 
-import urllib.parse
-
 ###############################
-# createParamsStr              #
+# checkSequence               #
 ###############################
 
-def createParamsStr(params_dict, verbose): 
+def checkSequence(baseURL, fullsequence, xlightsshowfolder, outputfolder, notepadopen, verbose):
 
-    if (verbose):
-        print ("params_dict = %s" % params_dict)
-
-    params_str = ""
-    params_ctr = 0
-    params_len = len(params_dict) 
-
-    for params_key, params_value in params_dict.items():
-        params_ctr += 1
-        if (params_ctr == 1):
-            if params_ctr == params_len:
-                params_str = "?" + params_key + "=" + str(params_value)
-            else:
-                params_str = "?" + params_key + "=" + str(params_value) + "&"
-        elif(params_ctr < params_len):
-            params_str = params_str + params_key + "=" + str(params_value) + "&"
-        else:
-            params_str = params_str + params_key + "=" + str(params_value)
-    params_str = re.sub(" ", "%20", params_str)
-    if (verbose):
-        print ("params_str = %s" % params_str)
-    
-    return(params_str)
-
-###############################
-# renderAll                   #
-###############################
-
-def renderAll(baseURL, fullsequence, highdef, verbose):
-
-    # Open sequence
+    # Check Sequence
     sequence = os.path.basename(fullsequence).split('/')[-1]
-    params_dict =  {"seq": fullsequence}
-    fppparams = createParamsStr(params_dict, verbose)
-    request = baseURL + "openSequence/" + fppparams
+    request = baseURL + "checkSequence?seq=" + re.sub(" ", r"%20", fullsequence)
     if (verbose):
-        print ("##### Open Sequence %s" % sequence)
+        print ("##### Check Sequence %s" % sequence)
         print ("request = ", request)
-    (ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
-    # Request Error?
-    if (ret_code < 0):
-        print("Unable to connect to xLights REST API %s" % baseURL)
-        print ("ret_code = ", ret_code)
-        print ("result = ", result) 
-        sys.exit(ret_code)
-    if (verbose):
-        print ("status_code = ", status_code)
-        print ("result = ", result)
-    # Render ALL sequence
-    params_dict =  {"highdef": highdef}
-    fppparams = createParamsStr(params_dict, verbose)
-    request = baseURL + "renderAll/" + fppparams
-    print ("##### Render ALL sequence %s" % sequence)
-    print ("request = ", request)
     (ret_code, status_code, result) = doRequestsGet(request, 900, verbose)
     # Request Error?
     if (ret_code < 0):
         print("Unable to connect to xLights REST API %s" % baseURL)
         print ("ret_code = ", ret_code)
         print ("result = ", result) 
-        sys.exit(ret_code)
-    print ("status_code = ", status_code)
-    print ("result = ", result)
-    # Save sequence
-    request = baseURL + "saveSequence"
-    if (verbose):
-        print ("##### Save sequence %s" % sequence)
-        print ("request = ", request)
-    (ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
-    # Request Error?
-    if (ret_code < 0):
-        print("Unable to connect to xLights REST API %s" % baseURL)
-        print ("ret_code = ", ret_code)
-        print ("result = ", result) 
-        sys.exit(ret_code)
+        sys.exit(ret_code)        
+    # 
     if (verbose):
         print ("status_code = ", status_code)
         print ("result = ", result)
-    # Close sequence
-    request = baseURL + "closeSequence"
-    if (verbose):
-        print ("##### Close sequence %s" % sequence)
-        print ("request = ", request)
-    (ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
-    # Request Error?
-    if (ret_code < 0):
-        print("Unable to connect to xLights REST API %s" % baseURL)
-        print ("ret_code = ", ret_code)
-        print ("result = ", result) 
-        sys.exit(ret_code)
-    if (verbose):
-        print ("status_code = ", status_code)
-        print ("result = ", result)
-        
-    return()
+    
+    # Output full file name
+    d1 = json.loads(result)
+    outputfile = d1["output"]
+    
+    # No Output Folder Defined? 
+    if (outputfolder == "NONE"):
+        newoutputfile = outputfile
+    else:
+        # Copy Check Sequence Output File to Check Sequence Output Folder using Sequence name
+        checksequencefolder = os.path.abspath(xlightsshowfolder + "\\" + outputfolder)
+        # Folder does not exist?
+        if not os.path.isdir(checksequencefolder):
+            os.mkdir(checksequencefolder)
+        # Copy Check Sequence Output File Name
+        newoutputfile = checksequencefolder + "\\" + re.sub(".xsq", ".txt", sequence) 
+        # Copy File
+        copy(outputfile, newoutputfile)
 
+    # Check Sequence Output File Searches
+    p1 = re.compile(r"^Show folder:")
+    p2 = re.compile(r"^Sequence:")
+    p3 = re.compile(r"^Errors:")
+    
+    print ("##### Check Sequence Summary")
+    print ("Check Sequence Output File: %s" % newoutputfile)    
+    
+    # Open Check Sequence Output File 
+    FINPUT = open(newoutputfile, "r")
+    for line in FINPUT:
+        s1 = p1.search(line)
+        # Strip Trailing Newline
+        line = line.rstrip()
+        if (s1):
+            print (line)
+        else:
+            s2 = p2.search(line)
+            if (s2):
+                print (line)
+            else:
+                s3 = p3.search(line)
+                if (s3):
+                    print (line)
+    # Close INPUT File
+    FINPUT.close()
+
+    # Open Check Sequence Output in Notepad?
+    if (notepadopen):
+        cmd = ("notepad.exe " + newoutputfile)
+        try:
+            cp = subprocess.Popen(cmd)
+        except:
+            sys.exit("*** Error in starting notepad %s" % sys.exc_info()[0])
+    return()
 
 ###############################
 # selectAll                   #
@@ -259,27 +235,27 @@ def clearAll(lb):
 # selectSequences             #
 ###############################
 
-def selectSequences(window, listSEQ, baseURL, xlightsshowfolder, highdef  , verbose):
+def selectSequences(window, listSEQ, baseURL, xlightsshowfolder, outputfolder, notepadopen, verbose):
     if (verbose):
         print(listSEQ)
         print(baseURL)
     seqSel = listSEQ.curselection()
     for i in seqSel:
         fullsequence = str(listSEQ.get(i))
-        # Package Sequence
-        renderAll(baseURL, fullsequence, highdef, verbose) 
+    # Check Sequence
+        checkSequence(baseURL, fullsequence, xlightsshowfolder, outputfolder, notepadopen, verbose) 
     # Close Window
     window.quit()
 ###############################
-# main                        #
-###############################
+# Main                        #
+###############################    
 
 def main():
 
-    print ("#" *5 + " renderAll Begin")
+    print ("#" *5 + " checkSequences Begin")
 
-    cli_parser = argparse.ArgumentParser(prog = 'renderAll',
-        description = '''%(prog)s is a tool to render all xLights sequences in a show folder,''')
+    cli_parser = argparse.ArgumentParser(prog = 'checkSequences',
+        description = '''%(prog)s is a tool to perform a check sequence on all xLights sequences in a show directory,''')
     
     ### Define Arguments    
 
@@ -291,35 +267,41 @@ def main():
 
     cli_parser.add_argument('-p', '--xlightsport', help = 'xLights REST API Port', default = "49913", choices = ["49913", "49914"],
         required = False)
-
+        
     cli_parser.add_argument('-x', '--xlightsprogramfolder', help = 'xLights Program Folder', default = "c:\\program files\\xlights",
         required = False)
         
-    cli_parser.add_argument('-d', '--highdef', help = 'High Definition', default = "true", choices = ["true", "false"],
+    cli_parser.add_argument('-o', '--outputfolder', help = 'Output Folder', default = "NONE",
+        required = False)
+
+    cli_parser.add_argument('-n', '--notepadopen' , help = 'Notepad Open', action='store_true',
         required = False)
 
     cli_parser.add_argument('-c', '--closexlights' , help = 'Close xLights', action='store_true',
-        required = False)
+        required = False)    
 
     cli_parser.add_argument('-v', '--verbose', help = 'Verbose Logging', action='store_true',
         required = False)
 
     ### Get Arguments
+
     args = cli_parser.parse_args()
     
     xlightsshowfolder = os.path.abspath(args.xlightsshowfolder)
     xlightsipaddress = args.xlightsipaddress
     xlightsport = args.xlightsport
     xlightsprogramfolder = os.path.abspath(args.xlightsprogramfolder)
-    highdef = args.highdef
+    outputfolder = args.outputfolder
+    notepadopen = args.notepadopen
     closexlights = args.closexlights
     verbose = args.verbose
     if (verbose):
-        print ("xLights Show Folder = %s" % xlightsshowfolder)
-        print ("xLights IP Address = %s" % xlightsipaddress)
-        print ("xLights Port = %s" % xlightsport)
+        print ("Xlights Show Folder = %s" % xlightsshowfolder)
+        print ("Xlights IP Address = %s" % xlightsipaddress)
+        print ("Xlights Port = %s" % xlightsport)
         print ("xLights Program Folder = %s" % xlightsprogramfolder)
-        print ("High Definition = %s" % highdef)
+        print ("Output Folder = %s" % outputfolder)
+        print ("Notepad Open = %s" % notepadopen)
         print ("Close xLights = %s" % closexlights)
 
     
@@ -331,28 +313,26 @@ def main():
     # Verify Show Folder
     if not os.path.isdir(xlightsshowfolder):
         print("Error: xLights Show Folder not found %s" % xlightsshowfolder)
-        sys.exit(-5)
-
+        sys.exit(-1)
     # Path Case Sensitive Check
     if not (path_exists_case_sensitive(xlightsshowfolder, verbose)):
         print("Error: xLights Show Folder case does not match %s" % xlightsshowfolder)
         sys.exit(-1)
-
     # verify xlights program file exists
     xlightsprogramfile = xlightsprogramfolder + "\\xlights.exe"
     if not os.path.isfile(xlightsprogramfile):
         print("Error: xLights Program File not found %s" % xlightsprogramfile)
         sys.exit(-1)
 
-    # Start xLights
+    # Start xLights?
     (ret_code, status_code, result) = startxLights(baseURL, xlightsprogramfile, verbose)
     # xLights Start Error?
     if (ret_code < 0):
         print("Unable to connect to xLights REST API %s" % baseURL)
         print ("ret_code = ", ret_code)
         print ("result = ", result)
-        sys.exit(ret_code)    
-    
+        sys.exit(ret_code)
+        
     # Get Current Show Folder
     request = baseURL + "getShowFolder"
     if (verbose):
@@ -383,8 +363,6 @@ def main():
         if (verbose):
             print ("status_code = ", status_code)
             print ("result = ", result)
-            
-
     # Build Sequence List
     SEQlist = []
     ### OS Walk Show Folder Recursively
@@ -402,19 +380,18 @@ def main():
                         print ("fullsequence = ", fullsequence)
                     SEQlist.append(fullsequence)
 
-    # Export Video Preview Selection Window
+    # Check Sequences Selection Window
     window = Tk()
-    window.title('Sequence Render All')
+    window.title('Check Sequences')
     window.geometry("520x520")
 
-    Label(window, text="Select Sequences to Render All").pack()
+    Label(window, text="Select Sequences to Check").pack()
 
     frame = Frame(window)
     frame.pack()
 
     listSEQ = Listbox(frame, width=50, height=20, font=("Helvetica", 12), selectmode = "multiple")
     listSEQ.pack(padx = 10, pady = 10, expand = YES, fill = "both")
-
     # Vertical Scrollbar
     scroll_V = Scrollbar(frame, orient="vertical")
     scroll_V.config(command=listSEQ.yview)
@@ -425,19 +402,17 @@ def main():
     scroll_H.pack(side= BOTTOM, fill= "x")
     # List Config
     listSEQ.config(yscrollcommand=scroll_V.set, xscrollcommand=scroll_H.set)
-    
-
-    
     # Load Sequence List
     for i in range(len(SEQlist)):
         listSEQ.insert(END, SEQlist[i])
     
-    allButton = Button(window, text="Select ALL", command = partial(selectAll, listSEQ)).pack(side = LEFT, padx=10)
+    allButton = Button(window, text="Select All", command = partial(selectAll, listSEQ)).pack(side = LEFT, padx=10)
     clearButton = Button(window, text="Clear All", command = partial(clearAll, listSEQ)).pack(side = LEFT, padx=10)
-    renderButton = Button(window, text="Render All", command = lambda: selectSequences(window, listSEQ, baseURL, xlightsshowfolder, highdef  , verbose)).pack(side = LEFT, padx=10)
+    checkButton = Button(window, text="Check", command = lambda: selectSequences(window, listSEQ, baseURL, xlightsshowfolder, outputfolder, notepadopen, verbose)).pack(side = LEFT, padx=10)
     cancelButton = Button(window, text="Cancel", command = window.destroy).pack(side = LEFT, padx=10)
 
     window.mainloop()
+
     ### Close xLights
     if (closexlights):
         request = baseURL + "closexLights"
@@ -450,7 +425,8 @@ def main():
             print("ret_code = ", ret_code)
             print("result = ", result)
             sys.exit(ret_code)
-    
-    print ("#" *5 + " renderAll End")
+
+    print ("#" *5 + " checkSequences End")      
+
 if __name__ == "__main__":
     main()
