@@ -138,7 +138,7 @@ Perform xLights REST API uploadFPPConfig using parameters from am upload FPP Con
                 <models> ["true", "false"]
                 <map>    ["true", "false"]
 
-	Example:
+## Example:
 			{"controllers": [{
 					"ip": "192.168.0.10",
 					"udp": "all",
@@ -170,4 +170,16 @@ Perform xLights REST API uploadSequence on selected sequences in a show folder a
     <media>  ["true", "false"]
     <format> ["v1", "v2std", "v2zlib", "v2uncompressedsparse", "v2uncompressed", "v2stdsparse", "v2zlibsparse"]
                     
-## Example:    
+## Example:
+			{"controllers": [{
+				"ip": "192.168.0.10",
+				"media": "false",
+				"format": "v2stdsparse"
+				},
+				{
+				"ip": "192.168.0.11",
+				"media": "false",
+				"format": "v2stdsparse"
+				}
+			
+			]}
