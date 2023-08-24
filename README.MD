@@ -48,23 +48,6 @@ Perform xLights REST API check sequence on all sequences in a show folder and su
     -v    --verbose              ; Verbose logging              ; action = "store_true"                          ; Required = False
 
 ## Example:
-`python checkSequences.py -s "g:\xLights\Show\Test Show" -c -v`
-
-# Script: exportModelsCSV.py  
-## Description:
-Perform xLights REST API exportModelsCSV and output to folder.  **NOTE** If Output folder = "DEFAULT" outputs to a sub folder "exportModelsCSV" in the show folder otherwise the folder specified is used
-
-## Arguments:
-    -f    --exportfilename       ; Export Models File Name      ;                                                ; Required = True
-    -s    --xlightsshowfolder    ; xLights Show Folder          ;                                                ; Required = True
-    -o    --outputfolder         ; Export Output folder         ; default = "DEFAULT"                            ; Required = False
-    -i    --xlightsipaddress     ; xLights REST API IP Address  ; default = "127.0.0.1"                          ; Required = False
-    -p    --xlightsport          ; xLights REST API Port        ; default = "49913" ; choices = "49913", "49914" ; Required = False
-    -x    --xlightsprogramfolder ; xLights Program Folder       ; default = "c:\program files\xlights"           ; Required = False
-    -c    --closexlights         ; Close xLights                ; action = "store_true"                          ; Required = False
-    -v    --verbose              ; Verbose logging              ; action = "store_true"                          ; Required = False
-
-## Example:
 `python exportModelsCSV.py -f exportModels -s "g:\xLights\Show\2021\Christmas"`
 
 # Script: exportControllers.py
@@ -84,8 +67,25 @@ Get information from xLights Networks XML File & REST API getControllers and exp
     -v    --verbose                  ; Verbose logging              ; action = "store_true"                          ; Required = False
 
 ## Example:
-`python exportControllers.py -s "g:\xLights\Show\2023\Christmas" -xc -v`
-                  
+`python exportControllers.py -s "g:\xLights\Show\2023\Christmas" -xc -v 
+
+## Example:
+`python checkSequences.py -s "g:\xLights\Show\Test Show" -c -v`
+
+# Script: exportModelsCSV.py  
+## Description:
+Perform xLights REST API exportModelsCSV and output to folder.  **NOTE** If Output folder = "DEFAULT" outputs to a sub folder "exportModelsCSV" in the show folder otherwise the folder specified is used
+
+## Arguments:
+    -f    --exportfilename       ; Export Models File Name      ;                                                ; Required = True
+    -s    --xlightsshowfolder    ; xLights Show Folder          ;                                                ; Required = True
+    -o    --outputfolder         ; Export Output folder         ; default = "DEFAULT"                            ; Required = False
+    -i    --xlightsipaddress     ; xLights REST API IP Address  ; default = "127.0.0.1"                          ; Required = False
+    -p    --xlightsport          ; xLights REST API Port        ; default = "49913" ; choices = "49913", "49914" ; Required = False
+    -x    --xlightsprogramfolder ; xLights Program Folder       ; default = "c:\program files\xlights"           ; Required = False
+    -c    --closexlights         ; Close xLights                ; action = "store_true"                          ; Required = False
+    -v    --verbose              ; Verbose logging              ; action = "store_true"                          ; Required = False
+                
 # Script: exportVideoPreviews.py
 
 ## Description:
