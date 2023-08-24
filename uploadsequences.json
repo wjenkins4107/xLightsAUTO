@@ -1,0 +1,32 @@
+	{"controllers": [{
+			"ip": "192.168.0.40",
+			"media": "false",
+			"format": "v2stdsparse"
+        },
+		{
+			"ip": "192.168.0.50",
+			"media": "false",
+			"format": "v2stdsparse"
+        },
+		{
+			"ip": "10.222.50.7",
+			"media": "true",
+			"format": "v2std"
+        },
+		{
+			"ip": "10.222.50.8",
+			"media": "false",
+			"format": "v2stdsparse"
+        },
+		{
+			"ip": "10.222.50.9",
+			"media": "false",
+			"format": "v2stdsparse"
+        },
+		{
+			"ip": "10.222.50.10",
+			"media": "false",
+			"format": "v2stdsparse"
+        }
+
+	]}

@@ -17,7 +17,7 @@ import os
 import time
 import re
 import requests
-import csv
+import json
 import ast
 ###########################
 # From Imports            #
@@ -93,7 +93,7 @@ def doRequestsGet(request, timeout, verbose):
 # startxLights                  #
 ###############################
 
-def startxLights(baseURL, xlightsprogramfile, verbose):
+def startxLights(baseURL, xlightsprogram, verbose):
 
     # xLights Running?
     request = baseURL + "getVersion"
@@ -116,7 +116,7 @@ def startxLights(baseURL, xlightsprogramfile, verbose):
             case -2:
                 if (not started):
                     # Start xLights
-                    cmd = "\"" + xlightsprogramfile + "\""
+                    cmd = "\"" + xlightsprogram + "\""
                     if (verbose):
                         print ("##### Start xLights")
                         print ("cmd = ", cmd)
@@ -245,20 +245,8 @@ def main():
    
     ### Define Arguments    
 
-    cli_parser.add_argument('-u', '--uploadcsvfile', help = 'Upload CSV File',
-        required = True)
-
     cli_parser.add_argument('-s', '--xlightsshowfolder', help = 'xLights Show Folder',
         required = True)        
-    
-    cli_parser.add_argument('-i', '--xlightsipaddress', help = 'xLights REST API IP Address', default = "127.0.0.1",
-        required = False)
-
-    cli_parser.add_argument('-p', '--xlightsport', help = 'xLights REST API Port', default = "49913", choices = ["49913", "49914"],
-        required = False)
-
-    cli_parser.add_argument('-x', '--xlightsprogramfolder', help = 'xLights Program Folder', default = "c:\\program files\\xlights",
-        required = False)
 
     cli_parser.add_argument('-c', '--closexlights' , help = 'Close xLights', action='store_true',
         required = False)
@@ -269,26 +257,44 @@ def main():
     ### Get Arguments
     args = cli_parser.parse_args()
     
-    uploadcsvfile = os.path.abspath(args.uploadcsvfile)
     xlightsshowfolder = os.path.abspath(args.xlightsshowfolder)
-    xlightsipaddress = args.xlightsipaddress
-    xlightsport = args.xlightsport
-    xlightsprogramfolder = os.path.abspath(args.xlightsprogramfolder)
     closexlights = args.closexlights
     verbose = args.verbose
+
+    ### Current Working Directory
+    CWD = os.getcwd()
+    
+    xlightsparmsfilename = "xlightsparms.json"
+    ### Load xLights Parms JSON
+    xlightsparmsfile = open(xlightsparmsfilename, "r+")
+    xlightsparms = json.load(xlightsparmsfile)
+    ### Get xLights Parms
+    xlightsipaddress = xlightsparms.get("xlightsipaddress")
+    xlightsport = xlightsparms.get("xlightsport")
+    # Replace xlightsport with real port value
+    if (xlightsport == "A"):
+        xlightsport = "49913"
+    elif (xlightsport == "B"):
+        xlightsport = "49914"
+    xlightsprogram = xlightsparms.get("xlightsprogram")
+	   
     if (verbose):
-        print ("Upload FPP Config CSV File = %s" % uploadcsvfile)
         print ("xLights Show Folder = %s" % xlightsshowfolder)
         print ("xLights IP Address = %s" % xlightsipaddress)
         print ("xLights Port = %s" % xlightsport)
-        print ("xLights Program Folder = %s" % xlightsprogramfolder)
+        print ("xLights Program Folder = %s" % xlightsprogram)
         print ("Close xLights = %s" % closexlights)
+        print ("CWD = %s" % CWD)
     
-    # verify upload file exists
-    if not os.path.isfile(uploadcsvfile):
-        print("Error: Upload FPP Config CSV file not found %s" % uploadcsvfile)
+    uploadfppconfigsfilename = "uploadfppconfigs.json"
+    # verify upload json file exists
+    if not os.path.isfile(uploadfppconfigsfilename):
+        print("Error: Upload FPP Config json file not found %s" % uploadfppconfigsfilename)
         sys.exit(-1)
         
+    ### load uploadfppconfigs json file 
+    uploadfppconfigsfile = open(uploadfppconfigsfilename, "r+")
+    uploadfppconfigs = json.load(uploadfppconfigsfile)
     # verify xlights show folder exists
     if not os.path.isdir(xlightsshowfolder):
         print("Error: xLights Show Folder not found %s" % xlightsshowfolder)
@@ -300,9 +306,8 @@ def main():
         sys.exit(-1)
 
     # verify xlights program file exists
-    xlightsprogramfile = xlightsprogramfolder + "\\xlights.exe"
-    if not os.path.isfile(xlightsprogramfile):
-        print("Error: xLights Program File not found %s" % xlightsprogramfile)
+    if not os.path.isfile(xlightsprogram):
+        print("Error: xLights Program File not found %s" % xlightsprogram)
         sys.exit(-1)
 
     # Base URL
@@ -311,7 +316,7 @@ def main():
         print ("Base URL = %s" % baseURL)
 
     # Start xLights?
-    (ret_code, status_code, result) = startxLights(baseURL, xlightsprogramfile, verbose)
+    (ret_code, status_code, result) = startxLights(baseURL, xlightsprogram, verbose)
     # xLights Start Error?
     if (ret_code < 0):
         print("Unable to connect to xLights REST API %s" % baseURL)
@@ -372,38 +377,31 @@ def main():
 
     # Load fpp upload config parms into list
     fppparms_list = []
-    with open(uploadcsvfile) as csvDataFile:
-        csvReader = csv.reader(csvDataFile)
-        for row in csvReader:
-            if (verbose):
-               print ("FPP parms %s" % row)
-            rowstr = str(row)
-            if (rowstr[2] != "#"):
-                # Valid Number of Parms?
-                if (len(row) == 4):
-                    fppip = row[0]
-                    s1 = p1.search(fppip)
-                    if (not s1):
-                        sys.exit("*** ERROR Invalid IPv4 Address %s" % uploadip)
-                    if fppip not in controllerIPs:
-                        sys.exit("*** ERROR Controller IP %s not defined in Xlights" % uploadip)
-                    fppudp = row[1]
-                    if fppudp not in ["none", "all", "proxy"]:
-                        print ("*** UDP parm invalid on %s changed to default of \"none\"" % uploadip)
-                        fppudp = "none"
-                    fppmodels = row[2]
-                    if fppmodels not in ["true", "false"]:
-                        print ("*** Models parm invalid on %s changed to default of \"false\"" % uploadip)
-                        fppmodels = "false"
-                    fppmap = row[3]
-                    if fppmap not in ["true", "false"]:
-                        print ("*** Map parm invalid on %s changed to default of \"false\"" % uploadip)
-                        fppmap = "false"
-                    fppparms_list.append([fppip, fppudp, fppmodels, fppmap])
-                else:
-                    print ("*** Invalid number of upload parms %s" % row)
+    fppctllist = uploadfppconfigs.get('controllers')
+    print (fppctllist)
+    for i in range(len(fppctllist)):
+        fppctl = fppctllist[i]
+        fppip =  fppctl.get("ip")
+        if (fppip != None):
+            s1 = p1.search(fppip)
+            if (not s1):
+                sys.exit("*** ERROR Invalid IPv4 Address %s" % fppip)
+            if fppip not in controllerIPs:
+                sys.exit("*** ERROR Controller IP %s not defined in Xlights" % fppip)
+        else:
+            sys.exit("*** ERROR Controller IP %s not found" % fppip)
+        fppudp = fppctl.get("udp", "none")
+        if fppudp not in ["none", "all", "proxy"]:
+           print ("*** UDP parm %s invalid on %s changed to default of \"none\"" % (ffpudp, fppip))
+        fppmodels = fppctl.get("models", "false")
+        if fppmodels not in ["true", "false"]:
+            print ("*** Models parm %s invalid on %s changed to default of \"false\"" % (ffpmodels, fppip))
+        fppmap = fppctl.get("map", "false")
+        if fppmap not in ["true", "false"]:
+            print ("*** Map parm %s invalid on %s changed to default of \"false\"" % (fppmap, fppip))
+        fppparms_list.append([fppip, fppudp, fppmodels, fppmap])    
 
-# Upload FPP Configurations Selection Window
+    # Upload FPP Configurations Selection Window
     window = Tk()
     window.title('Upload FPP Configurations')
     window.geometry("520x520")
@@ -415,7 +413,6 @@ def main():
 
     listFPP = Listbox(frame, width=50, height=20, font=("Helvetica", 12), selectmode = "multiple")
     listFPP.pack(padx = 10, pady = 10, expand = YES, fill = "both")
-
 
     # Vertical Scrollbar
     scroll_V = Scrollbar(frame, orient="vertical")

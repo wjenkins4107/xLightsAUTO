@@ -1,0 +1,72 @@
+   {
+			"boldLeft": {
+				"bold": "True",
+				"bg_color": "#D7E4BD",
+				"border": 2,
+				"align": "left"
+			},
+			"boldCenter": {
+				"bold": "True",
+				"bg_color": "#D7E4BD",
+				"border": 2,
+				"align": "center"
+			},
+			"boldRight": {
+				"bold": "True",
+				"bg_color": "#D7E4BD",
+				"border": 2,
+				"align": "right"
+			},
+			"strLeft": {
+				"bg_color": "#FFFFFF",
+				"border": 2,
+				"align": "left"
+			},
+			"strCenter": {
+				"bg_color": "#FFFFFF",
+				"border": 2,
+				"align": "center"
+			},
+			"strRight": {
+				"bg_color": "#FFFFFF",
+				"border": 2,
+				"align": "right"
+			},			
+			"intLeft": {
+				"bg_color": "#FFFFFF",
+				"border": 2,
+				"align": "left",
+				"num_format": "0"
+			},
+			"intCenter": {
+				"bg_color": "#FFFFFF",
+				"border": 2,
+				"align": "center",
+				"num_format": "0"
+			},
+			"intRight": {
+				"bg_color": "#FFFFFF",
+				"border": 2,
+				"align": "right",
+				"num_format": "0"
+			},
+			"floatLeft": {
+				"bg_color": "#FFFFFF",
+				"border": 2,
+				"align": "left",
+				"num_format": "###,###,##0"
+			},
+			"floatCenter": {
+				"bg_color": "#FFFFFF",
+				"border": 2,
+				"align": "center",
+				"num_format": "###,###,##0"
+			},
+			"floatRight": {
+				"bg_color": "#FFFFFF",
+				"border": 2,
+				"align": "right",
+				"num_format": "###,###,##0"
+			},
+			"wbHeaderImage": "default-image.png"				
+	}

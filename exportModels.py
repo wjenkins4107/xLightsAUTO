@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-# Name: exportVideoPreviews.py
-# Purpose: export video preview for sequences selected in a show folder and sub folders
+# Name: exportModels.py
+# Purpose: export models in a show folder to an excel file
 # Author: Bill Jenkins
 # Version: v2.1
 # Date: 08/24/2023
@@ -18,13 +18,11 @@ import time
 import re
 import requests
 import json
+import datetime
 
 ###########################
 # From Imports            #
 ###########################
-
-from functools import partial
-from tkinter import *
 from pathlib import Path
 
 ###############################
@@ -51,11 +49,10 @@ def path_exists_case_sensitive(path, verbose) -> bool:
                 print("Parent path not found")
             return False
         p = p.parent
-        
+
 ###############################
 # doRequestsGet               #
 ###############################
-
 def doRequestsGet(request, timeout, verbose):
 
     try:
@@ -70,7 +67,7 @@ def doRequestsGet(request, timeout, verbose):
         status_code = ""
         result = "##### Request HTTP Error: " + format(str(e))
 
-    # HTTP Connection Error?    
+    # HTTP Connection Error?
     except requests.exceptions.ConnectionError as e:
         ret_code = -2
         status_code = ""
@@ -139,100 +136,41 @@ def startxLights(baseURL, xlightsprogram, verbose):
     return(ret_code, status_code, result)
 
 ###############################
-# exportVideoPreview          #
+# exportModels                #
 ###############################
 
-def exportVideoPreview(baseURL, fullsequence, xlightsshowfolder, outputfolder, verbose):
-    # Open Sequence
-    sequence = os.path.basename(fullsequence).split('/')[-1]
-    request = baseURL + "openSequence/" + re.sub(" ", r"%20", fullsequence)
-    if (verbose):
-        print ("##### Open Sequence %s" % sequence)
-        print ("request = ", request)
-    (ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
-    # Request Error?
-    if (ret_code < 0):
-        print("Unable to connect to xLights REST API %s" % baseURL)
-        print ("ret_code = ", ret_code)
-        print ("result = ", result) 
-        sys.exit(ret_code)
-    if (verbose):
-        print ("status_code = ", status_code)
-        print ("result = ", result)
-        
-    # Full Output Folder
-    if (outputfolder == "DEFAULT"):
-        outputfolder = xlightsshowfolder + "\\exportVideoPreview"
-
+def exportModels(baseURL, xlightsshowfolder, exportfolder, exportfile, verbose):
+ 
+    # Output Folder
+    if (exportfolder == "DEFAULT"):
+        exportfolder = xlightsshowfolder + "\\exportModels"
     # Output Folder does not exist?
-    outputfolder = os.path.abspath(outputfolder)
-    if not os.path.isdir(outputfolder):
+    exportfolder = os.path.abspath(exportfolder)
+    if not os.path.isdir(exportfolder):
         # Make Output Folder
-        os.mkdir(outputfolder)
-
-    # outputfile
-    outputfile = outputfolder + "\\" + re.sub(".xsq", ".mp4", sequence)
-    outputfile = re.sub(" ", r"%20", outputfile)
-    # Export Video Preview
-    request = baseURL + "exportVideoPreview?filename=" + outputfile 
-    print ("##### Export Video Preview %s" % sequence)
-    print ("request = ", request)
+        os.mkdir(exportfolder)
+    # Export File
+    if (exportfile == "DEFAULT"):
+        # Get Current Date Time
+        timestamp = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+        exportfile = "exportModels_" + timestamp + ".xlsx" 
+    else:    
+        exportfile = exportfolder + "\\" + exportfile + ".xlsx" 
+    request = baseURL + "exportModelsCSV?filename=" + re.sub(" ", r"%20", exportfile) 
+    print ("##### Export Models for Show Folder %s " % xlightsshowfolder)
+    print ("request = ", request)    
     (ret_code, status_code, result) = doRequestsGet(request, 900, verbose)
     # Request Error?
     if (ret_code < 0):
         print("Unable to connect to xLights REST API %s" % baseURL)
         print ("ret_code = ", ret_code)
         print ("result = ", result) 
-        sys.exit(ret_code)
+        sys.exit(ret_code)        
     # 
     print ("status_code = ", status_code)
     print ("result = ", result)
-                
-    # Close Sequence
-    request = baseURL + "closeSequence"
-    if (verbose):
-        print ("##### Close Sequence %s" % sequence)
-        print ("request = ", request)
-    (ret_code, status_code, result) = doRequestsGet(request, 30, verbose)
-    # Request Error?
-    if (ret_code < 0):
-        print("Unable to connect to xLights REST API %s" % baseURL)        
-        print ("ret_code = ", ret_code)
-        print ("result = ", result) 
-        sys.exit(ret_code)
-    if (verbose):
-        print ("status_code = ", status_code)
-        print ("result = ", result)
-        
+
     return()
-
-###############################
-# selectAll                   #
-###############################
-
-def selectAll(lb):
-    lb.select_set(0, END)
-
-###############################
-# clearAll                    #
-###############################
-
-def clearAll(lb):
-    lb.select_clear(0, END)
-###############################
-# selectSequences             #
-###############################
-
-def selectSequences(window, listSEQ, baseURL, xlightsshowfolder, outputfolder, verbose):
-    if (verbose):
-        print(listSEQ)
-        print(baseURL)
-    seqSel = listSEQ.curselection()
-    for i in seqSel:
-        fullsequence = str(listSEQ.get(i))
-        exportVideoPreview(baseURL, fullsequence, xlightsshowfolder, outputfolder, verbose)
-    # Close Window
-    window.quit()
 
 ###############################
 # main                        #
@@ -240,26 +178,20 @@ def selectSequences(window, listSEQ, baseURL, xlightsshowfolder, outputfolder, v
 
 def main():
 
-    print ("#" *5 + " exportVideoPreviews Begin")
+    print ("#" *5 + " exportModels Begin")
 
-    cli_parser = argparse.ArgumentParser(prog = 'exportVideoPreviews',
-        description = '''%(prog)s is a tool to perform an export video preview on all xLights sequences in a show directory,''')
+    cli_parser = argparse.ArgumentParser(prog = 'exportModels',
+        description = '''%(prog)s is a tool to perform a export models to an excel file,''')
     
     ### Define Arguments    
 
     cli_parser.add_argument('-s', '--xlightsshowfolder', help = 'xLights Show Folder',
         required = True)
 
-    cli_parser.add_argument('-i', '--xlightsipaddress', help = 'xLights REST API IP Address', default = "127.0.0.1",
+    cli_parser.add_argument('-o', '--exportfolder', help = 'Excel Export Folder', default = "DEFAULT",
         required = False)
 
-    cli_parser.add_argument('-p', '--xlightsport', help = 'xLights REST API Port', default = "49913", choices = ["49913", "49914"],
-        required = False)
-
-    cli_parser.add_argument('-x', '--xlightsprogram', help = 'xLights Program Folder', default = "c:\\program files\\xlights",
-        required = False)
-
-    cli_parser.add_argument('-o', '--outputfolder', help = 'Output Folder', default = "DEFAULT",
+    cli_parser.add_argument('-f', '--exportfile', help = 'Excel Export Models File', default = "DEFAULT",
         required = False)
 
     cli_parser.add_argument('-c', '--closexlights' , help = 'Close xLights', action='store_true',
@@ -271,11 +203,13 @@ def main():
     ### Get Arguments
     args = cli_parser.parse_args()
     
+
     xlightsshowfolder = os.path.abspath(args.xlightsshowfolder)
-    outputfolder = args.outputfolder
+    exportfolder = args.exportfolder
+    exportfile = args.exportfile
     closexlights = args.closexlights
     verbose = args.verbose
-
+    
     ### Current Working Directory
     CWD = os.getcwd()
     
@@ -292,15 +226,18 @@ def main():
     elif (xlightsport == "B"):
         xlightsport = "49914"
     xlightsprogram = xlightsparms.get("xlightsprogram")
-
+	    
+    
     if (verbose):
-        print ("xLights Show Folder = %s" % xlightsshowfolder)
-        print ("xLights IP Address = %s" % xlightsipaddress)
+        print ("XLights Show Folder = %s" % xlightsshowfolder)
+        print ("XLights IP Address = %s" % xlightsipaddress)
         print ("xLights Port = %s" % xlightsport)
         print ("xLights Program = %s" % xlightsprogram)
-        print ("Output Folder = %s" % outputfolder)
+        print ("Output Folder = %s" % exportfolder)
+        print ("Excel Export Models File Name = %s" % exportfile)
         print ("Close xLights = %s" % closexlights)
-    
+        print ("CWD = %s" % CWD)
+        
     # Base URL
     baseURL = "http://" + xlightsipaddress + ":" + xlightsport + "/"
     if (verbose):
@@ -308,7 +245,7 @@ def main():
 
     # Verify Show Folder
     if not os.path.isdir(xlightsshowfolder):
-        print("Error: xLights Show Folder not found %s" % xlightsshowfolder)
+        print("Error: Show Folder not found %s" % xlightsshowfolder)
         sys.exit(-5)
 
     # Path Case Sensitive Check
@@ -361,56 +298,8 @@ def main():
             print ("status_code = ", status_code)
             print ("result = ", result)
 
-    # Build Sequence List
-    SEQlist = []
-    ### OS Walk Show Folder Recursively
-    for root, dir, files in os.walk(xlightsshowfolder):
-        for file in files:
-            # xLights Sequence File?
-            if (file.endswith(".xsq")):
-                fullsequence = os.path.join(root, file)
-                found = fullsequence.find("Backup\\")
-                # xLights Sequence File not in the Backup folder?
-                if (found < 0):
-                    sequence = file
-                    if (verbose):
-                        print ("sequence = ", sequence)
-                        print ("fullsequence = ", fullsequence)
-                    SEQlist.append(fullsequence)
 
-    # Export Video Preview Selection Window
-    window = Tk()
-    window.title('Export Video Previews')
-    window.geometry("520x520")
-
-    Label(window, text="Select Sequences to Export Video Preview").pack()
-
-    frame = Frame(window)
-    frame.pack()
-
-    listSEQ = Listbox(frame, width=50, height=20, font=("Helvetica", 12), selectmode = "multiple")
-    listSEQ.pack(padx = 10, pady = 10, expand = YES, fill = "both")
-
-    # Vertical Scrollbar
-    scroll_V = Scrollbar(frame, orient="vertical")
-    scroll_V.config(command=listSEQ.yview)
-    scroll_V.pack(side="right", fill="y")
-    # Horizontal Scrollbar
-    scroll_H = Scrollbar(frame, orient="horizontal")
-    scroll_H.config(command=listSEQ.xview)
-    scroll_H.pack(side= BOTTOM, fill= "x")
-    # List Config
-    listSEQ.config(yscrollcommand=scroll_V.set, xscrollcommand=scroll_H.set)
-    # Load Sequence List
-    for i in range(len(SEQlist)):
-        listSEQ.insert(END, SEQlist[i])
-    
-    allButton = Button(window, text="Select ALL", command = partial(selectAll, listSEQ)).pack(side = LEFT, padx=10)
-    clearButton = Button(window, text="Clear All", command = partial(clearAll, listSEQ)).pack(side = LEFT, padx=10)
-    exportButton = Button(window, text="Export", command = lambda: selectSequences(window, listSEQ, baseURL, xlightsshowfolder, outputfolder, verbose)).pack(side = LEFT, padx=10)
-    cancelButton = Button(window, text="Cancel", command = window.destroy).pack(side = LEFT, padx=10)
-
-    window.mainloop()
+    exportModels(baseURL, xlightsshowfolder, exportfolder, exportfile, verbose)
 
     ### Close xLights
     if (closexlights):
@@ -425,7 +314,7 @@ def main():
             print("result = ", result)
             sys.exit(ret_code)
 
-    print ("#" *5 + " exportVideoPreviews End")
+    print ("#" *5 + " exportModels End")
 
 if __name__ == "__main__":
     main()

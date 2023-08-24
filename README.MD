@@ -3,7 +3,7 @@ xLights Python Automation Scripts
 
 Author: Bill Jenkins  
 Date: 08/12/2023 
-Vesion: 4.0  
+Vesion: 4.1  
 
 # Environment
 
@@ -20,8 +20,15 @@ xLights: v2023.11 64bit
   - install requests package
         `pip install requests`
   - install xlsxwriter package
-        `pip install xlsxwriter`
-
+        `pip install xlsxwriter
+- JSON Files
+  - xlightsparms.json
+  - wbfmts.json
+  - uploadfppconfigs.json
+  - uploadsequences.json
+- Images
+  - default-image.png
+ 
 
 # Script: checkSeqMedia.py       #
 Check sequence media (audio, images, shaders and videos) and verify that they exist, list any errors found and a summary for each sequence
@@ -39,12 +46,9 @@ Perform xLights REST API check sequence on all sequences in a show folder and su
 
 ## Arguments:
     -s    --xlightsshowfolder    ; xLights Show Folder          ;                                                ; Required = True
-    -i    --xlightsipaddress     ; xLights REST API IP Address  ; default = "127.0.0.1"                          ; Required = False
-    -p    --xlightsport          ; xLights REST API Port        ; default = "49913" ; choices = "49913", "49914" ; Required = False
-    -x    --xlightsprogramfolder ; xLights Program Folder       ; default = "c:\program files\xlights"           ; Required = False
+    -c    --closexlights         ; Close xLights                ; action = "store_true"                          ; Required = False
     -o    --outputfolder         ; Output Folder                ; default = "NONE"                               ; Required = False
     -n    --notepadopen          ; Notepad Open                 ; action = "store_true"                          ; Required = False
-    -c    --closexlights         ; Close xLights                ; action = "store_true"                          ; Required = False
     -v    --verbose              ; Verbose logging              ; action = "store_true"                          ; Required = False
 
 ## Example:
@@ -56,13 +60,9 @@ Get information from xLights Networks XML File & REST API getControllers and exp
 
 ## Arguments:
     -s    --xlightsshowfolder        ; xLights Show Folder          ;                                                ; Required = True
-    -xi   --xlightsipaddress         ; xLights REST API IP Address  ; default = "127.0.0.1"                          ; Required = False
-    -xp   --xlightsport              ; xLights REST API Port        ; default = "A" ; choices = "A", "B"             ; Required = False
-    -xf   --xlightsprogramfolder     ; xLights Program Folder       ; default = "c:\\program files\\xlights"         ; Required = False
-    -xpgm --xlightsprogram           ; xLights Program              ; default = "\\xlights.exe"                      ; Required = False
     -xc   --closexlights             ; Close xLights                ; action = "store_true"                          ; Required = False
-    -xml  --xlightsNetworksXmlFile   ; xLights Networks XML File    ; default = "xlights_networks.xml"               ; Required = False
-    -fmt  --dwbFmtsFileName          ; Workbook Formats JSON File   ; default = "dwbFmts.json"                       ; Required = False
+    -fmt  --wbFmtsFileName           ; Workbook Formats JSON File   ; default = "wbFmts.json"                        ; Required = False
+    -o    --outputfolder             ; Export Workbook Folder       ; default = "DEFAULT"                            ; Required = False
     -wb   --wbName                   ; Workbook Name                ; default = "DEFAULT"                            ; Required = False
     -v    --verbose                  ; Verbose logging              ; action = "store_true"                          ; Required = False
 
@@ -72,18 +72,15 @@ Get information from xLights Networks XML File & REST API getControllers and exp
 ## Example:
 `python checkSequences.py -s "g:\xLights\Show\Test Show" -c -v`
 
-# Script: exportModelsCSV.py  
+# Script: exportModels.py  
 ## Description:
 Perform xLights REST API exportModelsCSV and output to folder.  **NOTE** If Output folder = "DEFAULT" outputs to a sub folder "exportModelsCSV" in the show folder otherwise the folder specified is used
 
 ## Arguments:
-    -f    --exportfilename       ; Export Models File Name      ;                                                ; Required = True
+
     -s    --xlightsshowfolder    ; xLights Show Folder          ;                                                ; Required = True
-    -o    --outputfolder         ; Export Output folder         ; default = "DEFAULT"                            ; Required = False
-    -i    --xlightsipaddress     ; xLights REST API IP Address  ; default = "127.0.0.1"                          ; Required = False
-    -p    --xlightsport          ; xLights REST API Port        ; default = "49913" ; choices = "49913", "49914" ; Required = False
-    -x    --xlightsprogramfolder ; xLights Program Folder       ; default = "c:\program files\xlights"           ; Required = False
     -c    --closexlights         ; Close xLights                ; action = "store_true"                          ; Required = False
+    -f    --exportfilename       ; Export Models File Name      ; default = "DEFAULT"                            ; Required = False
     -v    --verbose              ; Verbose logging              ; action = "store_true"                          ; Required = False
                 
 # Script: exportVideoPreviews.py
@@ -93,11 +90,8 @@ Perform xLights REST API exportVideoPreview on all sequences in a show folder.  
 
 ## Arguments:
     -s    --xlightsshowfolder    ; xLights Show Folder          ;                                                ; Required = True
-    -i    --xlightsipaddress     ; xLights REST API IP Address  ; default = "127.0.0.1"                          ; Required = False
-    -p    --xlightsport          ; xLights REST API Port        ; default = "49913" ; choices = "49913", "49914" ; Required = False
-    -x    --xlightsprogramfolder ; xLights Program Folder       ; default = "c:\program files\xlights"           ; Required = False
-    -o    --outputfolder         ; Export Video Output Folder   ; default = "DEFAULT"                            ; Required = False
     -c    --closexlights         ; Close xLights                ; action = "store_true"                          ; Required = False
+    -o    --outputfolder         ; Export Video Output Folder   ; default = "DEFAULT"                            ; Required = False
     -v    --verbose              ; Verbose logging              ; action = "store_true"                          ; Required = False
 
 ## Example:
@@ -109,9 +103,6 @@ Perform xLights REST API renderAll on all sequences in a show folder and sub fol
 
 ## Arguments:
     -s    --xlightsshowfolder    ; xLights Show Folder          ;                                                ; Required = True
-    -i    --xlightsipaddress     ; xLights REST API IP Address  ; default = "127.0.0.1"                          ; Required = False
-    -p    --xlightsport          ; xLights REST API Port        ; default = "49913" ; choices = "49913", "49914" ; Required = False
-    -x    --xlightsprogramfolder ; xLights Program Folder       ; default = "c:\program files\xlights"           ; Required = False
     -c    --closexlights         ; Close xLights                ; action = "store_true"                          ; Required = False
     -v    --verbose              ; Verbose logging              ; action = "store_true"                          ; Required = False
 
@@ -121,9 +112,6 @@ Perform xLights REST API uploadController using REST API ControllerIPs to obtain
 
 ## Arguments:
     -s    --xlightsshowfolder    ; xLights Show Folder          ;                                                ; Required = True
-    -i    --xlightsipaddress     ; xLights REST API IP Address  ; default = "127.0.0.1"                          ; Required = False
-    -p    --xlightsport          ; xLights REST API Port        ; default = "49913" ; choices = "49913", "49914" ; Required = False
-    -x    --xlightsprogramfolder ; xLights Program Folder       ; default = "c:\program files\xlights"           ; Required = False
     -c    --closexlights         ; Close xLights                ; action = "store_true"                          ; Required = False
     -v    --verbose              ; Verbose logging              ; action = "store_true"                          ; Required = False
 
@@ -132,70 +120,54 @@ Perform xLights REST API uploadController using REST API ControllerIPs to obtain
 
 # Script: uploadFPPConfigs.py
 ## Description:
-Perform xLights REST API uploadFPPConfig using parameters from am upload FPP Config csv file
+Perform xLights REST API uploadFPPConfig using parameters from am upload FPP Config JSON file
 
 ## Arguments:
-    -u    --uploadcsvfile        ; Upload FPP Config CSV File   ;                                                ; Required = True
     -s    --xlightsshowfolder    ; xLights Show Folder          ;                                                ; Required = True
-    -i    --xlightsipaddress     ; xLights REST API IP Address  ; default = "127.0.0.1"                          ; Required = False
-    -p    --xlightsport          ; xLights REST API Port        ; default = "49913" ; choices = "49913", "49914" ; Required = False
-    -x    --xlightsprogramfolder ; xLights Program Folder       ; default = "c:\program files\xlights"           ; Required = False
     -c    --closexlights         ; Close xLights                ; action = "store_true"                          ; Required = False
     -v    --verbose              ; Verbose logging              ; action = "store_true"                          ; Required = False
 
 ## Example:
-`python uploadFPPConfigs.py -u "g:\xLights\Show\Auto\uploadfpp.csv" -s "g:\xLights\Show\2021\Christmas" -v`
+`python uploadFPPConfigs.py -s "g:\xLights\Show\2021\Christmas" -v
 
-## CSV Format
-
-    <ip>,<udp>,<models>,<map>
+## JSON Format
 
     valid values:
-                Comment  "#" must be first character
                 <ip>     Valid IPv4 Address of controller and defined in xLights
                 <udp>    ["none", "all", "proxy"]
                 <models> ["true", "false"]
                 <map>    ["true", "false"]
-    Example:    
-                ##############################
-                # Upload FPP Config CSV File #
-                ##############################
-                # FPP Player
-                10.222.50.7,all,true,false
-                # FPP Remote
-                10.222.50.8,none,true,false
+
+	Example:
+			{"controllers": [{
+					"ip": "192.168.0.10",
+					"udp": "all",
+					"models": "true",
+					"map": "false"
+					},
+					"ip": "192.168.0.11",
+					"udp": "none",
+					"models": "false",
+					"map": "false"
+					},					
+			]}
 
 # Script: uploadSequences.py
 ## Description:
-Perform xLights REST API uploadSequence on all sequences in a show folder and sub folders using parameters from an upload sequence csv file
+Perform xLights REST API uploadSequence on selected sequences in a show folder and sub folders using parameters from an upload sequence JSON file
 
 ## Arguments:
-    -u    --uploadcsvfile        ; Upload Sequence CSV File     ;                                                ; Required = True
     -s    --xlightsshowfolder    ; xLights Show Folder          ;                                                ; Required = True
-    -i    --xlightsipaddress     ; xLights REST API IP Address  ; default = "127.0.0.1"                          ; Required = False
-    -p    --xlightsport          ; xLights REST API Port        ; default = "49913" ; choices = "49913", "49914" ; Required = False
-    -x    --xlightsprogramfolder ; xLights Program Folder       ; default = "c:\program files\xlights"           ; Required = False
     -c    --closexlights         ; Close xLights                ; action = "store_true"                          ; Required = False
     -v    --verbose              ; Verbose logging              ; action = "store_true"                          ; Required = False
 
 ## Example:
-`python uploadSequences.py -u "g:\xLights\Show\Auto\uploadseq.csv" -s "g:\xLights\Show\2021\Christmas" -v`
+`python uploadSequences.py -s "g:\xLights\Show\2022\Halloween" -v`
 
-## Upload CSV Upload Sequence File Format
-
-    <ip>,<media>,<format>
     
 ## valid values:
-    Comment  "#" must be first character
     <ip>     Valid IPv4 Address of controller and defined in xLights
     <media>  ["true", "false"]
     <format> ["v1", "v2std", "v2zlib", "v2uncompressedsparse", "v2uncompressed", "v2stdsparse", "v2zlibsparse"]
                     
 ## Example:    
-    ############################
-    # Upload Sequence CSV File #
-    ############################
-    # FPP Player
-    10.222.50.7,true,v2std
-    # FPP Remote
-    10.222.50.8,false,v2stdsparse

@@ -1,0 +1,12 @@
+   {
+			"xlightsipaddress": 
+				"127.0.0.1",
+			"xlightsport": 
+				"A",
+			"xlightsprogram": 
+				"c:\\program files\\xlights\\xlights.exe",
+			"xlightsnetworksxmlfile": 
+				"xlights_networks.xml",
+			"xlightsrgbeffectsxmlFile": 
+				"xlights_rgbeffects.xml"	
+   }

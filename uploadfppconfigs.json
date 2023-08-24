@@ -1,0 +1,38 @@
+	{"controllers": [{
+			"ip": "192.168.0.40",
+			"udp": "none",
+			"models": "true",
+			"map": "false"
+        },
+		{
+			"ip": "192.168.0.50",
+			"udp": "none",
+			"models": "true",
+			"map": "false"
+        },
+		{
+			"ip": "10.222.50.7",
+			"udp": "none",
+			"models": "true",
+			"map": "false"
+        },
+		{
+			"ip": "10.222.50.8",
+			"udp": "none",
+			"models": "true",
+			"map": "false"
+        },
+		{
+			"ip": "10.222.50.9",
+			"udp": "none",
+			"models": "true",
+			"map": "false"
+        },
+		{
+			"ip": "10.222.50.10",
+			"udp": "none",
+			"models": "true",
+			"map": "false"
+        }
+
+	]}

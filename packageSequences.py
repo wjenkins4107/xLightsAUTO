@@ -3,8 +3,8 @@
 # Name: packageSequences.py
 # Purpose: perform a REST API packageSequence on selected sequences in a show folder and sub folders 
 # Author: Bill Jenkins
-# Version: v2.0
-# Date: 08/15/2023
+# Version: v2.1
+# Date: 08/24/2023
 
 ###############################
 # Imports                     #
@@ -17,6 +17,7 @@ import os
 import time
 import re
 import requests
+import json
 import shutil
 
 ###########################
@@ -93,7 +94,7 @@ def doRequestsGet(request, timeout, verbose):
 # startxLights                #
 ###############################
 
-def startxLights(baseURL, xlightsprogramfile, verbose):
+def startxLights(baseURL, xlightsprogram, verbose):
 
     # xLights Running?
     request = baseURL + "getVersion"
@@ -116,7 +117,7 @@ def startxLights(baseURL, xlightsprogramfile, verbose):
             case -2:
                 if (not started):
                     # Start xLights
-                    cmd = "\"" + xlightsprogramfile + "\""
+                    cmd = "\"" + xlightsprogram + "\""
                     if (verbose):
                         print ("##### Start xLights")
                         print ("cmd = ", cmd)
@@ -242,15 +243,6 @@ def main():
     cli_parser.add_argument('-s', '--xlightsshowfolder', help = 'xLights Show Folder',
         required = True)
 
-    cli_parser.add_argument('-i', '--xlightsipaddress', help = 'xLights REST API IP Address', default = "127.0.0.1",
-        required = False)
-
-    cli_parser.add_argument('-p', '--xlightsport', help = 'xLights REST API xlightsport', default = "49913", choices = ["49913", "49914"],
-        required = False)
-
-    cli_parser.add_argument('-x', '--xlightsprogramfolder', help = 'xLights Program Folder', default = "c:\\program files\\xlights",
-        required = False)
-
     cli_parser.add_argument('-c', '--closexlights' , help = 'Close xLights', action='store_true',
         required = False)    
 
@@ -262,18 +254,33 @@ def main():
     args = cli_parser.parse_args()
     
     xlightsshowfolder = args.xlightsshowfolder
-    xlightsipaddress = args.xlightsipaddress
-    xlightsport = args.xlightsport
-    xlightsprogramfolder = args.xlightsprogramfolder
     closexlights = args.closexlights
     verbose = args.verbose
+
+    ### Current Working Directory
+    CWD = os.getcwd()
+    
+    xlightsparmsfilename = "xlightsparms.json"
+    ### Load xLights Parms JSON
+    xlightsparmsfile = open(xlightsparmsfilename, "r+")
+    xlightsparms = json.load(xlightsparmsfile)
+    ### Get xLights Parms
+    xlightsipaddress = xlightsparms.get("xlightsipaddress")
+    xlightsport = xlightsparms.get("xlightsport")
+    # Replace xlightsport with real port value
+    if (xlightsport == "A"):
+        xlightsport = "49913"
+    elif (xlightsport == "B"):
+        xlightsport = "49914"
+    xlightsprogram = xlightsparms.get("xlightsprogram")
+
     if (verbose):
         print ("xLights Show Folder = %s" % xlightsshowfolder)
         print ("xLights IP Address = %s" % xlightsipaddress)
         print ("xLights Port = %s" % xlightsport)
-        print ("xLights Program Folder = %s" % xlightsprogramfolder)
+        print ("xLights Program = %s" % xlightsprogram)
         print ("Close xLights = %s" % closexlights)
-
+        print ("CWD = %s" % CWD)
     
     # Base URL
     baseURL = "http://" + xlightsipaddress + ":" + xlightsport + "/"
@@ -289,14 +296,14 @@ def main():
     if not (path_exists_case_sensitive(xlightsshowfolder, verbose)):
         print("Error: xLights Show Folder case does not match %s" % xlightsshowfolder)
         sys.exit(-1)
+
     # verify xlights program file exists
-    xlightsprogramfile = xlightsprogramfolder + "\\xlights.exe"
-    if not os.path.isfile(xlightsprogramfile):
-        print("Error: xLights Program File not found %s" % xlightsprogramfile)
+    if not os.path.isfile(xlightsprogram):
+        print("Error: xLights Program File not found %s" % xlightsprogram)
         sys.exit(-1)
 
     # Start xLights
-    r = startxLights(baseURL, xlightsprogramfile, verbose)
+    r = startxLights(baseURL, xlightsprogram, verbose)
     # xLights Not Started?
     if (r == "503"):
         print("Unable to connect to xLights REST API %s" % baseURL)
