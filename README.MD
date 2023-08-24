@@ -67,6 +67,25 @@ Perform xLights REST API exportModelsCSV and output to folder.  **NOTE** If Outp
 ## Example:
 `python exportModelsCSV.py -f exportModels -s "g:\xLights\Show\2021\Christmas"`
 
+# Script: exportControllers.py
+## Description:
+Get information from xLights Networks XML File & REST API getControllers and export to Excel workbook
+
+## Arguments:
+    -s    --xlightsshowfolder        ; xLights Show Folder          ;                                                ; Required = True
+    -xi   --xlightsipaddress         ; xLights REST API IP Address  ; default = "127.0.0.1"                          ; Required = False
+    -xp   --xlightsport              ; xLights REST API Port        ; default = "A" ; choices = "A", "B"             ; Required = False
+    -xf   --xlightsprogramfolder     ; xLights Program Folder       ; default = "c:\\program files\\xlights"         ; Required = False
+    -xpgm --xlightsprogram           ; xLights Program              ; default = "\\xlights.exe"                      ; Required = False
+    -xc   --closexlights             ; Close xLights                ; action = "store_true"                          ; Required = False
+    -xml  --xlightsNetworksXmlFile   ; xLights Networks XML File    ; default = "xlights_networks.xml"               ; Required = False
+    -fmt  --dwbFmtsFileName          ; Workbook Formats JSON File   ; default = "dwbFmts.json"                       ; Required = False
+    -wb   --wbName                   ; Workbook Name                ; default = "DEFAULT"                            ; Required = False
+    -v    --verbose                  ; Verbose logging              ; action = "store_true"                          ; Required = False
+
+## Example:
+`python exportControllers.py -s "g:\xLights\Show\2023\Christmas" -xc -v`
+                  
 # Script: exportVideoPreviews.py
 
 ## Description:
