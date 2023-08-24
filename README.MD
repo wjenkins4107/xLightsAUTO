@@ -2,8 +2,8 @@
 xLights Python Automation Scripts
 
 Author: Bill Jenkins  
-Date: 08/12/2023 
-Vesion: 4.1  
+Date: 08/24/2023 
+Vesion: 2.1  
 
 # Environment
 
