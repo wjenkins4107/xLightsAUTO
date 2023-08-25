@@ -272,12 +272,12 @@ def main():
     elif (xlightsport == "B"):
         xlightsport = "49914"
     xlightsprogram = xlightsparms.get("xlightsprogram")
-
+    
     if (verbose):
         print ("xLights Show Folder = %s" % xlightsshowfolder)
         print ("xLights IP Address = %s" % xlightsipaddress)
         print ("xLights Port = %s" % xlightsport)
-        print ("xLights Program Folder = %s" % xlightsprogramfolder)
+        print ("xLights Program Folder = %s" % xlightsprogram)
         print ("Close xLights = %s" % closexlights)
         print ("CWD = %s" % CWD)
 
