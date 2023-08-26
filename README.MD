@@ -62,12 +62,11 @@ Get information from xLights Networks XML File & REST API getControllers and exp
     -s    --xlightsshowfolder        ; xLights Show Folder          ;                                                ; Required = True
     -c    --closexlights             ; Close xLights                ; action = "store_true"                          ; Required = False
     -f    --wbFmtsFileName           ; Workbook Formats JSON File   ; default = "wbFmts.json"                        ; Required = False
-    -o    --outputfolder             ; Export Workbook Folder       ; default = "DEFAULT"                            ; Required = False
     -w    --wbName                   ; Workbook Name                ; default = "DEFAULT"                            ; Required = False
     -v    --verbose                  ; Verbose logging              ; action = "store_true"                          ; Required = False
 
 ## Example:
-`python exportControllers.py -s "g:\xLights\Show\2023\Christmas" -xc -v 
+`python exportControllers.py -s "g:\xLights\Show\2023\Christmas" -c -v 
 
 ## Example:
 `python checkSequences.py -s "g:\xLights\Show\Test Show" -c -v`
