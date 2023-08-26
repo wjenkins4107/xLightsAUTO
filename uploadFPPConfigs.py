@@ -3,8 +3,8 @@
 # Name: uploadFPPConfigs,py
 # Purpose: Upload an FPP Config to FPP instance using a csv formatted input file 
 # Author: Bill Jenkins
-# Version: v2.0
-# Date: 08/15/2022
+# Version: v2.1
+# Date: 08/26/2022
 
 ###########################
 # Imports                 #
@@ -24,6 +24,7 @@ import ast
 ###########################
 from functools import partial
 from tkinter import *
+from tkinter import ttk
 from pathlib import Path
 
 ###############################
@@ -178,8 +179,8 @@ def uploadFPPConfig(baseURL, fppip, fppudp, fppmodels, fppmap, verbose):
     
     params_dict =  {"ip": fppip, "udp": fppudp, "models": fppmodels, "map": fppmap}
     fppparams = createParamsStr(params_dict, verbose)
-    request = baseURL + "uploadFPPConfig/" + fppparams  
-    print ("Upload FPP Config to FPP IP:%s udp:%s models:%s map:%s" % (fppip, fppudp, fppmodels, fppmap))
+    request = baseURL + "uploadFPPConfig/" + fppparams
+    ("Upload FPP Config to FPP IP:%s udp:%s models:%s map:%s" % (fppip, fppudp, fppmodels, fppmap))
     if (verbose):
        print ("request = ", request)
     (ret_code, status_code, result) = doRequestsGet(request, 900, verbose)
@@ -199,37 +200,72 @@ def uploadFPPConfig(baseURL, fppip, fppudp, fppmodels, fppmap, verbose):
 # selectAll                   #
 ###############################
 
-def selectAll(lb):
-    lb.select_set(0, END)
-
+def selectAll(tree):
+    # Iterate over all the root-level items in the treeview.
+    for item in tree.get_children():
+        select_children(tree, item)
+    
+def select_children(tree, item):
+    # Make sure the item is expanded so the user can see it.
+    tree.item(item, open=True)
+    
+    # Select the current item.
+    tree.selection_add(item)
+    
+    # Select all the children of the current item, if any.
+    item_children = tree.get_children(item)
+    if item_children:
+        for sub_item in item_children:
+            select_children(tree, sub_item)
+        
 ###############################
-# clearAll                    #
+# removeAll                   #
 ###############################
-
-def clearAll(lb):
-    lb.select_clear(0, END)
-
+def removeAll(tree):
+    # Iterate over all the root-level items in the treeview.
+    for item in tree.get_children():
+        remove_children(tree, item)
+    
+def remove_children(tree, item):
+    # Make sure the item is expanded so the user can see it.
+    tree.item(item, open=True)
+    
+    # Remove the current item.
+    tree.selection_remove(item)
+    
+    # Remove all the children of the current item, if any.
+    item_children = tree.get_children(item)
+    if item_children:
+        for sub_item in item_children:
+            remove_children(tree, sub_item)
+    
+#
 ###############################
 # selectedControllers         #
 ###############################
-def selectedControllers(window, listFPP, baseURL, verbose):
+def selectedControllers(window, tree, baseURL, verbose):
     #
+    selected_items = tree.selection()
     if (verbose):
-        print(listFPP)
         print(baseURL)
-    FPPControllers = []
-    fppSel = listFPP.curselection()
-    for i in fppSel:
-        s1 = str(listFPP.get(i))
-        fppParms = s1.split(";")
-        print ("fppParms = ", fppParms)
-        fppip = fppParms[0]
-        fppudp = fppParms[2]
-        fppmodel = fppParms[4]
-        fppmap = fppParms[6]
+        print (selected_items)
+    for i in range(len(selected_items)):
+        item_details = tree.item(selected_items[i])
+        if (verbose):
+            print (item_details)
+        item_details_values = item_details.get("values")
+        if (verbose):
+            print (item_details_values)
+    
+        # Get Parms    
+        fppip = item_details_values[0]
+        fppudp = item_details_values[1]
+        fppmodel = item_details_values[2]
+        fppmap = item_details_values[3]
+    
         # Upload FPP Config
         uploadFPPConfig(baseURL, fppip, fppudp, fppmodel, fppmap, verbose)
-
+    
     # Close Window
     window.quit()
 
@@ -378,7 +414,8 @@ def main():
     # Load fpp upload config parms into list
     fppparms_list = []
     fppctllist = uploadfppconfigs.get('controllers')
-    print (fppctllist)
+    if (verbose):
+        print (fppctllist)
     for i in range(len(fppctllist)):
         fppctl = fppctllist[i]
         fppip =  fppctl.get("ip")
@@ -393,10 +430,10 @@ def main():
         fppudp = fppctl.get("udp", "none")
         if fppudp not in ["none", "all", "proxy"]:
            print ("*** UDP parm %s invalid on %s changed to default of \"none\"" % (ffpudp, fppip))
-        fppmodels = fppctl.get("models", "false")
+        fppmodels = fppctl.get("models", "none")
         if fppmodels not in ["true", "false"]:
             print ("*** Models parm %s invalid on %s changed to default of \"false\"" % (ffpmodels, fppip))
-        fppmap = fppctl.get("map", "false")
+        fppmap = fppctl.get("map", "none")
         if fppmap not in ["true", "false"]:
             print ("*** Map parm %s invalid on %s changed to default of \"false\"" % (fppmap, fppip))
         fppparms_list.append([fppip, fppudp, fppmodels, fppmap])    
@@ -404,40 +441,50 @@ def main():
     # Upload FPP Configurations Selection Window
     window = Tk()
     window.title('Upload FPP Configurations')
-    window.geometry("520x520")
+    window.geometry("425x425")
 
-    Label(window, text="Upload FPP Configurations Selection").pack()
+    Label(window, text="Select FPP Configurations to Upload").pack()
 
     frame = Frame(window)
     frame.pack()
+    bottomframe = Frame(window)
+    bottomframe.pack( side = BOTTOM )
 
-    listFPP = Listbox(frame, width=50, height=20, font=("Helvetica", 12), selectmode = "multiple")
-    listFPP.pack(padx = 10, pady = 10, expand = YES, fill = "both")
+        # Set Style Theme
+    s = ttk.Style()
+    s.theme_use('clam')
 
-    # Vertical Scrollbar
-    scroll_V = Scrollbar(frame, orient="vertical")
-    scroll_V.config(command=listFPP.yview)
-    scroll_V.pack(side="right", fill="y")
-    # Horizontal Scrollbar
-    scroll_H = Scrollbar(frame, orient="horizontal")
-    scroll_H.config(command=listFPP.xview)
-    scroll_H.pack(side= BOTTOM, fill= "x")
-    # List Config
-    listFPP.config(yscrollcommand=scroll_V.set, xscrollcommand=scroll_H.set)
-    # FPP Config List
-    for i in range(len(fppparms_list)):
-        fppip = fppparms_list[i][0]
-        fppudp = fppparms_list[i][1]
-        fppmodel = fppparms_list[i][2]
-        fppmap = fppparms_list[i][3]
-        listFPP.insert(END, fppip + ";udp=;" + fppudp + ";model=;" + fppmodel + ";map=;" + fppmap)
+    # Add a Treeview widget
+    tree = ttk.Treeview(window, column=("IP", "udp", "models", "map"), show='headings', height=10)
+    tree.pack(side ="left")
+    
+    tree.column("# 1", width = 100, anchor=CENTER)
+    tree.heading("# 1", text= "IP")
+    tree.column("# 2", width = 100, anchor=CENTER)
+    tree.heading("# 2", text="udp")
+    tree.column("# 3", width = 100, anchor=CENTER)
+    tree.heading("# 3", text="models")
+    tree.column("# 4", width = 100, anchor=CENTER)
+    tree.heading("# 4", text="maps")
 
-    allButton = Button(window, text="Select ALL", command = partial(selectAll, listFPP)).pack(side = LEFT, padx=10)
-    clearButton = Button(window, text="Clear All", command = partial(clearAll, listFPP)).pack(side = LEFT, padx=10)
-    fppuploadButton = Button(window, text="FPP Upload", command = lambda: selectedControllers(window, listFPP, baseURL, verbose)).pack(side = LEFT, padx=10)
-    cancelButton = Button(window, text="Cancel", command = window.destroy).pack(side = LEFT, padx=10)
+    # add a scrollbar
+    vscrollbar = ttk.Scrollbar(orient=VERTICAL, command=tree.yview)
+    tree.configure(yscroll=vscrollbar.set)
+    vscrollbar.pack(side ='right', fill ='x')
 
+    # Get data
+    for ctl_fppparms in fppparms_list:
+        tree.insert('', END, values=ctl_fppparms)   
+    tree.pack()
+
+    # define buttons
+    allButton = Button(bottomframe, text="Select ALL", command = partial(selectAll, tree)).pack(side = LEFT, padx=10)
+    clearButton = Button(bottomframe, text="Clear All", command = partial(removeAll, tree)).pack(side = LEFT, padx=10)
+    fppuploadButton = Button(bottomframe, text="FPP Upload", command = lambda: selectedControllers(window, tree, baseURL, verbose)).pack(side = LEFT, padx=10)
+    cancelButton = Button(bottomframe, text="Cancel", command = window.destroy).pack(side = LEFT, padx=10)
+    
     window.mainloop()
+    
     ### Close xLights
     if (closexlights):
         request = baseURL + "closexLights"
