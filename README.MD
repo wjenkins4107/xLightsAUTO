@@ -20,7 +20,7 @@ xLights: v2023.11 64bit
   - install requests package
         `pip install requests`
   - install xlsxwriter package
-        `pip install xlsxwriter
+        `pip install xlsxwriter`
 - JSON Files
   - xlightsparms.json
   - wbfmts.json
